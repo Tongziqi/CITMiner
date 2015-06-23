@@ -7,6 +7,25 @@ public class Node {
     public Node nodeHead;   //节点的头结点
     public Node nodeTail;   //节点的尾节点  //只用头节点 一个是一棵树 一个节点可能有很多尾节点 但是只有一个头结点
 
+    public int getTimesOfNodes() {
+        return timesOfNodes;
+    }
+
+    public void setTimesOfNodes(int timesOfNodes) {
+        this.timesOfNodes = timesOfNodes;
+    }
+
+    public int getWeightOfNodes() {
+        return weightOfNodes;
+    }
+
+    public void setWeightOfNodes(int weightOfNodes) {
+        this.weightOfNodes = weightOfNodes;
+    }
+
+    public int timesOfNodes; //出现的次数
+    public int weightOfNodes; //节点的权重
+
     public Node getNodeHead() {
         return nodeHead;
     }

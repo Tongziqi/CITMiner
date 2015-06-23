@@ -15,7 +15,11 @@ public class CITMinerMain {
 
         File filePath = new File("D:" + File.separator + "test.txt");
         String allNodes = citMinerMain.getNodes(filePath);
-        System.out.println(citMinerMain.getNodeListWithHeadAndTailNodes(citMinerMain.getNodesListFromText(allNodes))[15][12].getNodeHead().getNodenumber());
+        Node[][] nodes = citMinerMain.getNodeListWithHeadAndTailNodes(citMinerMain.getNodesListFromText(allNodes));
+        nodes = citMinerMain.makeCompresssionTree(nodes);
+        System.out.println("父节点是:" + nodes[1][9].getNodeHead().getNodenumber());
+        System.out.println("出现的次数是:" + nodes[1][9].getTimesOfNodes());
+        System.out.println("权重是:" + nodes[1][9].getWeightOfNodes());
 
     }
 
@@ -42,26 +46,6 @@ public class CITMinerMain {
         return new String(b, 0, len, "GBK");
     }
 
-    /**
-     * 把文件里面的数字组成一个二维Integer链表
-     *
-     * @param nodesFronText 表示从文件里面读取的数值
-     * @return 一个二维Integer链表
-     */
-    public Integer[][] getIntegerListFromText(String nodesFronText) {
-        String lineNumbersOfArray[] = nodesFronText.split("\n");
-        int arrayListnumbers = lineNumbersOfArray.length;
-        Integer nodesList[][] = new Integer[arrayListnumbers][];
-        for (int i = 0; i < arrayListnumbers; i++) {
-            String numbersList[] = lineNumbersOfArray[i].split(" |\r");
-            nodesList[i] = new Integer[numbersList.length];
-
-            for (int j = 0; j < numbersList.length; j++) {
-                nodesList[i][j] = Integer.valueOf(numbersList[j]);
-            }
-        }
-        return nodesList;
-    }
 
     /**
      * 把文件里面的数字组成一个二维Node链表
@@ -86,6 +70,7 @@ public class CITMinerMain {
     }
 
     /**
+     * nodesnodes
      * 将获得的二维Node链表转换成一个带头结点和尾节点的二维Node链表
      *
      * @param nodes 获得的二维Node链表
@@ -140,5 +125,32 @@ public class CITMinerMain {
             }
         }
         return nodesList;
+    }
+
+    public Node[][] makeCompresssionTree(Node[][] nodes) {
+        for (int i = 0; i < nodes.length; i++) {
+
+            nodes[i][0].setWeightOfNodes(0);
+            for (int j = 1; j < nodes[i].length; j++) { //从第二个节点开始算起
+                if (nodes[i][j].getNodenumber() != -1) {
+                    int timesOfNodes = 0;
+                    nodes[i][j].setWeightOfNodes(1);
+                    for (int m = 0; m < nodes.length; m++) {
+                        for (int n = 1; n < nodes[m].length; n++) {
+                            if (nodes[i][j].getNodenumber() == nodes[m][n].getNodenumber() &&
+                                    nodes[i][j].getNodeHead().getNodenumber() == nodes[m][n].getNodeHead().getNodenumber()) {
+                                timesOfNodes++;
+                            }
+                        }
+                    }
+                    nodes[i][j].setTimesOfNodes(timesOfNodes);
+                } else {
+                    nodes[i][j].setTimesOfNodes(0);
+                    nodes[i][j].setWeightOfNodes(0);
+                }
+            }
+        }
+
+        return nodes;
     }
 }
