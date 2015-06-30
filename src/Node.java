@@ -1,11 +1,39 @@
+import java.util.ArrayList;
+
 /**
  * Created by Administrator on 2015/6/21 0021.
  */
 public class Node {
     public int nodenumber;  //节点的数值
+    public int timesOfNodes; //出现的次数
+    public int weightOfNodes; //节点的权重
+    public int sequence; //在链表中的位置 方便剪切查找
+
+    public int getSequence() {
+        return sequence;
+    }
+
+    public void setSequence(int sequence) {
+        this.sequence = sequence;
+    }
 
     public Node nodeHead;   //节点的头结点
-    public Node nodeTail;   //节点的尾节点  //只用头节点 一个是一棵树 一个节点可能有很多尾节点 但是只有一个头结点
+
+    public ArrayList<Node> arrayListNodeTail = new ArrayList<Node>();
+
+
+    public ArrayList<Node> getArrayListNodeTail() {
+        return arrayListNodeTail;
+    }
+
+    @Override
+    public String toString() {
+        return "Node{" + + nodenumber + "}";
+    }
+
+    public void addNodeTail(Node nodeTail) {
+        arrayListNodeTail.add(nodeTail);
+    }
 
     public int getTimesOfNodes() {
         return timesOfNodes;
@@ -23,18 +51,11 @@ public class Node {
         this.weightOfNodes = weightOfNodes;
     }
 
-    public int timesOfNodes; //出现的次数
-    public int weightOfNodes; //节点的权重
 
     public Node getNodeHead() {
         return nodeHead;
     }
 
-    public Node(Node nodeHead, int nodenumber, Node nodeTail) {
-        this.nodeHead = nodeHead;
-        this.nodenumber = nodenumber;
-        this.nodeTail = nodeTail;
-    }
 
     public Node(int nodenumber) {
         this.nodenumber = nodenumber;
@@ -42,14 +63,6 @@ public class Node {
 
     public void setNodeHead(Node nodeHead) {
         this.nodeHead = nodeHead;
-    }
-
-    public Node getNodeTail() {
-        return nodeTail;
-    }
-
-    public void setNodeTail(Node nodeTail) {
-        this.nodeTail = nodeTail;
     }
 
 
