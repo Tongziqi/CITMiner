@@ -4,7 +4,7 @@ import java.util.ArrayList;
  * Created by Administrator on 2015/6/21 0021.
  */
 public class Node {
-    public int nodenumber;  //节点的数值
+    public String nodenumber;  //节点的数值
     public int timesOfNodes; //出现的次数
     public int weightOfNodes; //节点的权重
     public int sequence; //在链表中的位置 方便剪切查找
@@ -16,10 +16,6 @@ public class Node {
 
     public void setNodeStringNumber(String nodeStringNumber) {
         this.nodeStringNumber = nodeStringNumber;
-    }
-
-    public void addNodeStringNumber(String addnodeStringNumber) {
-        nodeStringNumber = nodeStringNumber + " " + addnodeStringNumber;
     }
 
     public int getSequence() {
@@ -41,7 +37,7 @@ public class Node {
 
     @Override
     public String toString() {
-        return "Node{" + +nodenumber + "}";
+        return "Node" + nodenumber;
     }
 
 
@@ -79,7 +75,7 @@ public class Node {
     }
 
 
-    public Node(int nodenumber) {
+    public Node(String nodenumber) {
         this.nodenumber = nodenumber;
     }
 
@@ -88,11 +84,11 @@ public class Node {
     }
 
 
-    public int getNodenumber() {
+    public String getNodenumber() {
         return nodenumber;
     }
 
-    public void setNodenumber(int nodenumber) {
+    public void setNodenumber(String nodenumber) {
         this.nodenumber = nodenumber;
     }
 }
