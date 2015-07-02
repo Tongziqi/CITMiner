@@ -20,16 +20,9 @@ public class CITMinerMain {
         String allNodes = citMinerMain.getNodes(filePath);
         Node[][] nodes = citMinerMain.getNodeListWithHeadAndTailNodes(citMinerMain.getNodesListFromText(allNodes));
         nodes = citMinerMain.makeCompresssionTree(nodes);
-//        System.out.println("父节点是:" + nodes[0][8].getNodeHead().getNodenumber());
-//        System.out.println("出现的次数是:" + nodes[0][8].getTimesOfNodes());
-//        System.out.println("权重是:" + nodes[0][8].getWeightOfNodes());
-//        System.out.println("尾节点是:" + nodes[0][0].getArrayListNodeTail().toString());
-//        System.out.println("第一颗子树的分子数:" + citMinerMain.getHeadTailFromCutting(nodes[1], 2).toString());
-        ArrayList<Node> arrayList = citMinerMain.getNewTreeFromCutting(citMinerMain.getHeadTailFromCutting(nodes[1], 2), 2);
-        System.out.println("压缩后的结果:" + citMinerMain.compressTreetest(arrayList, 3).toString());
+        ArrayList<Node> arrayList = citMinerMain.getNewTreeFromCutting(citMinerMain.getHeadTailFromCutting(nodes[0], 2), 2);
         System.out.println("剪切后的序列是:" + arrayList.toString());
-
-
+        System.out.println("压缩后的序列是:" + citMinerMain.compressTreetest(arrayList, 3));
     }
 
 
@@ -239,9 +232,53 @@ public class CITMinerMain {
         }
     }
 
-    public Node compressTreetest(ArrayList<Node> arrayList, int timesYouDefine) {
-        for (Node aNode : arrayList) {
+    /**
+     * 对树进行压缩
+     *
+     * @param arrayList      剪切后的树
+     * @param timesYouDefine 定义压缩的阀值
+     * @return 应该返回一个字符串
+     */
+    public ArrayList<Node> compressTreetest(ArrayList<Node> arrayList, int timesYouDefine) {
+        String compressNodes = "";
+        Boolean headNodeString = false;
+
+        for (int i = 0; i < arrayList.size(); i++) {  //这里不用foreach是因为要对arrayList进行删除工作
+            if (arrayList.get(i).getTimesOfNodes() == timesYouDefine) {
+                if (!headNodeString) {
+                    compressNodes = compressNodes + String.valueOf(arrayList.get(i).getNodeHead().getNodenumber())
+                            + " " + "[" + String.valueOf(arrayList.get(i).getNodeHead().getWeightOfNodes()) + "] " +
+                            String.valueOf(arrayList.get(i).getNodenumber())
+                            + " " + "[" + String.valueOf(arrayList.get(i).getWeightOfNodes()) + "]";
+                    headNodeString = true;
+                } else {
+                    compressNodes = compressNodes + " " + String.valueOf(arrayList.get(i).getNodenumber())
+                            + " " + "[" + String.valueOf(arrayList.get(i).getWeightOfNodes()) + "]";
+                }
+                for (Node broNode : getBrotherNodes(arrayList.get(i))) {
+                    broNode.addWeightOfNodes();  //如果大于自定义的阀值，兄弟节点+1
+                }
+                for (Node childNode : arrayList.get(i).getArrayListNodeTail()) {
+                    arrayList.get(i).getNodeHead().addNodeTail(childNode);  ////添加尾节点
+                }
+                arrayList.get(i).getNodeHead().setNodeStringNumber(compressNodes); //在链表中删除不符合的节点
+                arrayList.get(i).getNodeHead().delNodeTail(arrayList.get(i));//删除该节点与父节点的关系
+                arrayList.remove(arrayList.get(i));
+                i--;
+            }
+        }
+/*        for (Node aNode : arrayList) {
             if (aNode.getTimesOfNodes() == timesYouDefine) {
+                if (!headNodeString) {
+                    compressNodes = compressNodes + String.valueOf(aNode.getNodeHead().getNodenumber())
+                            + " " + "[" + String.valueOf(aNode.getNodeHead().getWeightOfNodes()) + "] " +
+                            String.valueOf(aNode.getNodenumber())
+                            + " " + "[" + String.valueOf(aNode.getWeightOfNodes()) + "]";
+                    headNodeString = true;
+                } else {
+                    compressNodes = compressNodes + " " + String.valueOf(aNode.getNodenumber())
+                            + " " + "[" + String.valueOf(aNode.getWeightOfNodes()) + "]";
+                }
                 for (Node broNode : getBrotherNodes(aNode)) {
                     broNode.addWeightOfNodes();  //如果大于自定义的阀值，兄弟节点+1
                 }
@@ -249,9 +286,11 @@ public class CITMinerMain {
                     aNode.getNodeHead().addNodeTail(childNode);  ////添加尾节点
                 }
                 aNode.getNodeHead().delNodeTail(aNode);//删除该节点
+                arrayList.remove(aNode);
+                aNode.getNodeHead().setNodeStringNumber(compressNodes);
             }
-        }
-        return arrayList.get(0);
+        }*/
+        return arrayList;
     }
 
 

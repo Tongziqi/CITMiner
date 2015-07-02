@@ -8,6 +8,19 @@ public class Node {
     public int timesOfNodes; //出现的次数
     public int weightOfNodes; //节点的权重
     public int sequence; //在链表中的位置 方便剪切查找
+    public String nodeStringNumber; //压缩后的字符串
+
+    public String getNodeStringNumber() {
+        return nodeStringNumber;
+    }
+
+    public void setNodeStringNumber(String nodeStringNumber) {
+        this.nodeStringNumber = nodeStringNumber;
+    }
+
+    public void addNodeStringNumber(String addnodeStringNumber) {
+        nodeStringNumber = nodeStringNumber + " " + addnodeStringNumber;
+    }
 
     public int getSequence() {
         return sequence;
@@ -30,6 +43,7 @@ public class Node {
     public String toString() {
         return "Node{" + +nodenumber + "}";
     }
+
 
     public void addNodeTail(Node nodeTail) {
         arrayListNodeTail.add(nodeTail);
