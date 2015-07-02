@@ -28,11 +28,15 @@ public class Node {
 
     @Override
     public String toString() {
-        return "Node{" + + nodenumber + "}";
+        return "Node{" + +nodenumber + "}";
     }
 
     public void addNodeTail(Node nodeTail) {
         arrayListNodeTail.add(nodeTail);
+    }
+
+    public void delNodeTail(Node nodeTail) {
+        arrayListNodeTail.remove(nodeTail);
     }
 
     public int getTimesOfNodes() {
@@ -49,6 +53,10 @@ public class Node {
 
     public void setWeightOfNodes(int weightOfNodes) {
         this.weightOfNodes = weightOfNodes;
+    }
+
+    public void addWeightOfNodes() {
+        this.weightOfNodes = weightOfNodes + 1;
     }
 
 

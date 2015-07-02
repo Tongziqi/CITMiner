@@ -20,12 +20,14 @@ public class CITMinerMain {
         String allNodes = citMinerMain.getNodes(filePath);
         Node[][] nodes = citMinerMain.getNodeListWithHeadAndTailNodes(citMinerMain.getNodesListFromText(allNodes));
         nodes = citMinerMain.makeCompresssionTree(nodes);
-        System.out.println("父节点是:" + nodes[0][8].getNodeHead().getNodenumber());
-        System.out.println("出现的次数是:" + nodes[0][8].getTimesOfNodes());
-        System.out.println("权重是:" + nodes[0][8].getWeightOfNodes());
-        System.out.println("尾节点是:" + nodes[0][0].getArrayListNodeTail().toString());
-        System.out.println("第一颗子树的分子数:" + citMinerMain.getHeadTailFromCutting(nodes[1], 2).toString());
-        System.out.println("剪切后的序列是:" + citMinerMain.getNewTreeFromCutting(citMinerMain.getHeadTailFromCutting(nodes[0], 2), 2).toString());
+//        System.out.println("父节点是:" + nodes[0][8].getNodeHead().getNodenumber());
+//        System.out.println("出现的次数是:" + nodes[0][8].getTimesOfNodes());
+//        System.out.println("权重是:" + nodes[0][8].getWeightOfNodes());
+//        System.out.println("尾节点是:" + nodes[0][0].getArrayListNodeTail().toString());
+//        System.out.println("第一颗子树的分子数:" + citMinerMain.getHeadTailFromCutting(nodes[1], 2).toString());
+        ArrayList<Node> arrayList = citMinerMain.getNewTreeFromCutting(citMinerMain.getHeadTailFromCutting(nodes[1], 2), 2);
+        System.out.println("压缩后的结果:" + citMinerMain.compressTreetest(arrayList, 3).toString());
+        System.out.println("剪切后的序列是:" + arrayList.toString());
 
 
     }
@@ -216,13 +218,56 @@ public class CITMinerMain {
         return nodesList;
     }
 
+    /**
+     * 迭代添加压缩树中节点
+     *
+     * @param node           压缩树的头结点（经过处理后得到的）
+     * @param timesYouDefine 定义的阀值
+     */
 
     public void addNodeFromTree(Node node, int timesYouDefine) {
-        for (Node aNode : node.getArrayListNodeTail()) {
-            if (aNode.getTimesOfNodes() >= timesYouDefine) {
-                alistFromCutting.add(aNode);
+
+        for (int i = 0; i < node.getArrayListNodeTail().size(); i++) {
+            if (node.getArrayListNodeTail().get(i).getTimesOfNodes() >= timesYouDefine) {
+                alistFromCutting.add(node.getArrayListNodeTail().get(i));
+                addNodeFromTree(node.getArrayListNodeTail().get(i), timesYouDefine);
+
+            } else {
+                node.getArrayListNodeTail().get(i).getNodeHead().delNodeTail(node.getArrayListNodeTail().get(i));
+                i--;
             }
-            addNodeFromTree(aNode, timesYouDefine);
         }
+    }
+
+    public Node compressTreetest(ArrayList<Node> arrayList, int timesYouDefine) {
+        for (Node aNode : arrayList) {
+            if (aNode.getTimesOfNodes() == timesYouDefine) {
+                for (Node broNode : getBrotherNodes(aNode)) {
+                    broNode.addWeightOfNodes();  //如果大于自定义的阀值，兄弟节点+1
+                }
+                for (Node childNode : aNode.getArrayListNodeTail()) {
+                    aNode.getNodeHead().addNodeTail(childNode);  ////添加尾节点
+                }
+                aNode.getNodeHead().delNodeTail(aNode);//删除该节点
+            }
+        }
+        return arrayList.get(0);
+    }
+
+
+    /**
+     * 得到一个节点的兄弟节点
+     *
+     * @param node 需要判断的节点
+     * @return 返回该节点的兄弟节点
+     */
+    public ArrayList<Node> getBrotherNodes(Node node) {
+        ArrayList<Node> nodeArrayList = new ArrayList<Node>();
+        for (Node aNode : node.getNodeHead().getArrayListNodeTail()) {
+            if (aNode != node) {
+                nodeArrayList.add(aNode);
+            }
+        }
+        return nodeArrayList;
     }
 }
