@@ -4,18 +4,21 @@ import java.util.ArrayList;
  * Created by Administrator on 2015/6/21 0021.
  */
 public class Node {
+    public NodeNumber nodeNumberandtime;
+    public Node nodeHead;   //节点的头结点
     public String nodenumber;  //节点的数值
     public int timesOfNodes; //出现的次数
     public int weightOfNodes; //节点的权重
     public int sequence; //在链表中的位置 方便剪切查找
-    public String nodeStringNumber; //压缩后的字符串
 
-    public String getNodeStringNumber() {
-        return nodeStringNumber;
+
+    public NodeNumber getNodeNumberandtime() {
+        return nodeNumberandtime;
     }
 
-    public void setNodeStringNumber(String nodeStringNumber) {
-        this.nodeStringNumber = nodeStringNumber;
+    public void setNodeNumberandtime(String nodenumber, int weightOfNodes) {
+        nodeNumberandtime.setNodenumber(nodenumber);
+        nodeNumberandtime.setWeightOfNodes(weightOfNodes);
     }
 
     public int getSequence() {
@@ -26,7 +29,6 @@ public class Node {
         this.sequence = sequence;
     }
 
-    public Node nodeHead;   //节点的头结点
 
     public ArrayList<Node> arrayListNodeTail = new ArrayList<Node>();
 
@@ -76,7 +78,9 @@ public class Node {
 
 
     public Node(String nodenumber) {
+
         this.nodenumber = nodenumber;
+        nodeNumberandtime = new NodeNumber(nodenumber, 0);
     }
 
     public void setNodeHead(Node nodeHead) {
