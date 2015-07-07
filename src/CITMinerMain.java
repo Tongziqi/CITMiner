@@ -20,11 +20,10 @@ public class CITMinerMain {
         String allNodes = citMinerMain.getNodes(filePath);
         Node[][] nodes = citMinerMain.getNodeListWithHeadAndTailNodes(citMinerMain.getNodesListFromText(allNodes));
         nodes = citMinerMain.makeCompresssionTree(nodes);
-        ArrayList<Node> arrayList = citMinerMain.getNewTreeFromCutting(citMinerMain.getHeadTailFromCutting(nodes[1], 2), 2);
+        ArrayList<Node> arrayList = citMinerMain.getNewTreeFromCutting(citMinerMain.getHeadTailFromCutting(nodes[2], 2), 2);
         System.out.println("剪切后的序列是:" + arrayList.toString());
         System.out.println("压缩后的序列是:" + citMinerMain.compressTreetest(arrayList, 3));
-        System.out.println("压缩第二次后的序列是:" + citMinerMain.compressTreetest(arrayList, 2));
-        System.out.println("得到的压缩链是:" + citMinerMain.compressTreetest(arrayList, 2).get(0));
+        System.out.println("压缩第二次后的序列是:" + citMinerMain.compressTreetest(arrayList, 2).get(0).getNodeNumberArrayList().toString());
         System.out.print("------------------END---------------------");
     }
 
@@ -83,7 +82,6 @@ public class CITMinerMain {
     public Node[][] getNodeListWithHeadAndTailNodes(Node[][] nodes) {
         Node nodesList[][] = new Node[nodes.length][];
         Node defaultHeadNode = new Node("-3");  //默认头结点为-3
-        Node defaultTailNode = new Node("-4");  //默认尾节点为-4
         Node firstNodeHeadNode = new Node("-2"); //默认第一个结点的头结点为-2
 
         //初始化Node,完成两个工作，第一：去掉前三个节点；第二：每个节点添加默认的头节点
@@ -92,7 +90,6 @@ public class CITMinerMain {
             for (int j = 0; j < nodes[i].length - 3; j++) {
                 nodesList[i][j] = nodes[i][j + 3];
                 nodesList[i][j].setNodeHead(defaultHeadNode);
-                //nodesList[i][j].addNodeTail(defaultTailNode);
                 nodesList[i][j].setSequence(j);  //这里新添加了位置，为了方面下面的查找
             }
         }
@@ -211,7 +208,7 @@ public class CITMinerMain {
         nodesList = (ArrayList<Node>) alistFromCutting.clone();
         nodesList.add(0, node);
         for (Node aNodesList : nodesList) {
-            aNodesList.setNodeNumberandtime(aNodesList.getNodenumber(), aNodesList.getWeightOfNodes());
+            aNodesList.setNodeNumberArrayList(aNodesList.getNodenumber(), aNodesList.getWeightOfNodes());
         }
         alistFromCutting.clear();
         return nodesList;
@@ -251,12 +248,13 @@ public class CITMinerMain {
             if (arrayList.get(i).getTimesOfNodes() == timesYouDefine) {
                 for (Node broNode : getBrotherNodes(arrayList.get(i))) {
                     broNode.addWeightOfNodes();  //如果大于自定义的阀值，兄弟节点+1
+                    broNode.getNodeNumberArrayList().set(0, new NodeNumber(broNode.getNodenumber(), broNode.weightOfNodes));
                 }
                 for (Node childNode : arrayList.get(i).getArrayListNodeTail()) {
                     arrayList.get(i).getNodeHead().addNodeTail(childNode);  ////添加尾节点
                     childNode.setNodeHead(arrayList.get(i).getNodeHead()); //同时添加父节点
                 }
-                arrayList.get(i).getNodeHead().setNodenumber(arrayList.get(i).getNodeHead().getNodenumber() + " " + arrayList.get(i).getNodenumber());
+                arrayList.get(i).getNodeHead().addNodeNumberandtimeList(arrayList.get(i).getNodeNumberArrayList());
                 arrayList.get(i).getNodeHead().delNodeTail(arrayList.get(i));//删除该节点与父节点的关系
                 arrayList.remove(arrayList.get(i));
                 i--;

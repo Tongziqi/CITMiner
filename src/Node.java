@@ -4,21 +4,27 @@ import java.util.ArrayList;
  * Created by Administrator on 2015/6/21 0021.
  */
 public class Node {
-    public NodeNumber nodeNumberandtime;
+    public ArrayList<NodeNumber> nodeNumberArrayList;
     public Node nodeHead;   //节点的头结点
     public String nodenumber;  //节点的数值
     public int timesOfNodes; //出现的次数
     public int weightOfNodes; //节点的权重
     public int sequence; //在链表中的位置 方便剪切查找
 
-
-    public NodeNumber getNodeNumberandtime() {
-        return nodeNumberandtime;
+    public void addNodeNumberandtime(NodeNumber nodeNumberandtime) {
+        nodeNumberArrayList.add(nodeNumberandtime);
     }
 
-    public void setNodeNumberandtime(String nodenumber, int weightOfNodes) {
-        nodeNumberandtime.setNodenumber(nodenumber);
-        nodeNumberandtime.setWeightOfNodes(weightOfNodes);
+    public void addNodeNumberandtimeList(ArrayList<NodeNumber> list) {
+        nodeNumberArrayList.addAll(list);
+    }
+
+    public void setNodeNumberArrayList(String nodenumber, int weightOfNodes) {
+        nodeNumberArrayList.add(0, new NodeNumber(nodenumber, weightOfNodes));
+    }
+
+    public ArrayList<NodeNumber> getNodeNumberArrayList() {
+        return nodeNumberArrayList;
     }
 
     public int getSequence() {
@@ -80,7 +86,7 @@ public class Node {
     public Node(String nodenumber) {
 
         this.nodenumber = nodenumber;
-        nodeNumberandtime = new NodeNumber(nodenumber, 0);
+        nodeNumberArrayList = new ArrayList<NodeNumber>();
     }
 
     public void setNodeHead(Node nodeHead) {
