@@ -12,6 +12,7 @@ import java.util.Iterator;
  */
 public class CITMinerMain {
     protected ArrayList<Node> alistFromCutting = new ArrayList<Node>();
+    private static int vauleYouDefine = 3;
 
     public static void main(String[] args) throws IOException {
         CITMinerMain citMinerMain = new CITMinerMain();
@@ -20,11 +21,27 @@ public class CITMinerMain {
         String allNodes = citMinerMain.getNodes(filePath);
         Node[][] nodes = citMinerMain.getNodeListWithHeadAndTailNodes(citMinerMain.getNodesListFromText(allNodes));
         nodes = citMinerMain.makeCompresssionTree(nodes);
-        ArrayList<Node> arrayList = citMinerMain.getNewTreeFromCutting(citMinerMain.getHeadTailFromCutting(nodes[2], 2), 2);
-        System.out.println("剪切后的序列是:" + arrayList.toString());
-        System.out.println("压缩后的序列是:" + citMinerMain.compressTreetest(arrayList, 3));
-        System.out.println("压缩第二次后的序列是:" + citMinerMain.compressTreetest(arrayList, 2).get(0).getNodeNumberArrayList().toString());
-        System.out.print("------------------END---------------------");
+        for (int i = 0; i < nodes.length; i++) {
+            ArrayList<Node> arrayListHeadNodes = citMinerMain.getHeadTailFromCutting(nodes[i], vauleYouDefine);
+            if (arrayListHeadNodes.size() >= 1) {
+                ArrayList<Node> arrayList = citMinerMain.getNewTreeFromCutting(arrayListHeadNodes, vauleYouDefine);
+                System.out.println("剪切后第" + i + "的序列是:" + arrayList.toString());
+                //开始进行压缩,具体压缩的阀值由出现的最大频率来决定
+                //一直迭代压缩到边的频繁度都不大于最小频繁度
+                for (int j = 3; j >= vauleYouDefine; j--) {
+                    citMinerMain.compressTreetest(arrayList, j);
+                }
+/*                citMinerMain.compressTreetest(arrayList, 3);
+                citMinerMain.compressTreetest(arrayList, 2);*/
+
+                if (arrayList.get(0).getNodeNumberArrayList().size() <= 1) {
+                    System.out.println("没有符合条件的压缩链" + "\n");
+                } else
+                    System.out.println("压缩链是:" + arrayList.get(0).getNodeNumberArrayList().toString() + "\n");
+            } else
+                System.out.print("因为设置的阀值过大,第" + i + "序列不符合的压缩序列" + "\n" + "\n");
+        }
+        System.out.print("\n" + "----------------------------END--------------------------------");
     }
 
 
@@ -245,7 +262,7 @@ public class CITMinerMain {
     public ArrayList<Node> compressTreetest(ArrayList<Node> arrayList, int timesYouDefine) {
 
         for (int i = 0; i < arrayList.size(); i++) {  //这里不用foreach是因为要对arrayList进行删除工作
-            if (arrayList.get(i).getTimesOfNodes() == timesYouDefine) {
+            if (arrayList.get(i).getTimesOfNodes() >= timesYouDefine) {
                 for (Node broNode : getBrotherNodes(arrayList.get(i))) {
                     broNode.addWeightOfNodes();  //如果大于自定义的阀值，兄弟节点+1
                     broNode.getNodeNumberArrayList().set(0, new NodeNumber(broNode.getNodenumber(), broNode.weightOfNodes));
@@ -260,6 +277,7 @@ public class CITMinerMain {
                 i--;
             }
         }
+
         return arrayList;
     }
 

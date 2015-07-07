@@ -28,9 +28,6 @@ public class NodeNumber {
 
     @Override
     public String toString() {
-        return "NodeNumber{" +
-                "nodenumber='" + nodenumber + '\'' +
-                ", weightOfNodes=" + weightOfNodes +
-                '}';
+        return nodenumber + '\'' + weightOfNodes;
     }
 }
