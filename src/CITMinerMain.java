@@ -15,13 +15,13 @@ import java.util.Iterator;
 public class CITMinerMain {
     protected ArrayList<Node> alistFromCutting = new ArrayList<Node>();
     private ArrayList<Integer> frequentlyList = new ArrayList<Integer>();
-
     private static int vauleYouDefine = 3;
 
-    public static void main(String[] args) throws IOException {
-        CITMinerMain citMinerMain = new CITMinerMain();
-        String fileName = "D:/输出的结果.txt";
 
+    public static void main(String[] args) throws IOException {
+        String fileName = "D:/输出的结果.txt";
+        CITMinerMain citMinerMain = new CITMinerMain();
+        long timeMillis = System.currentTimeMillis();  // 记录系统开始的时间
         File filePath = new File("D:" + File.separator + "test.txt");
         String allNodes = citMinerMain.getNodes(filePath);
         Node[][] nodes = citMinerMain.getNodeListWithHeadAndTailNodes(citMinerMain.getNodesListFromText(allNodes));
@@ -45,9 +45,11 @@ public class CITMinerMain {
                     writeNodes(fileName, "压缩链是:" + arrayList.get(0).getNodeNumberArrayList().toString() + "\n");
             } else
                 writeNodes(fileName, "因为设置的阀值过大,第" + i + "序列不符合的压缩序列" + "\n" + "\n");
-
         }
-        System.out.print("\n" + "--------------结果已经输出在D盘---------------------");
+        writeNodes(fileName, "\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 ");
+        
+        System.out.println("\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 ");
+        System.out.print("\n" + "-----------------------结束-------------------------");
     }
 
 
