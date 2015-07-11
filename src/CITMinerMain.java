@@ -1,9 +1,11 @@
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
 /**
@@ -12,36 +14,40 @@ import java.util.Iterator;
  */
 public class CITMinerMain {
     protected ArrayList<Node> alistFromCutting = new ArrayList<Node>();
+    private ArrayList<Integer> frequentlyList = new ArrayList<Integer>();
+
     private static int vauleYouDefine = 3;
 
     public static void main(String[] args) throws IOException {
         CITMinerMain citMinerMain = new CITMinerMain();
+        String fileName = "D:/输出的结果.txt";
 
         File filePath = new File("D:" + File.separator + "test.txt");
         String allNodes = citMinerMain.getNodes(filePath);
         Node[][] nodes = citMinerMain.getNodeListWithHeadAndTailNodes(citMinerMain.getNodesListFromText(allNodes));
         nodes = citMinerMain.makeCompresssionTree(nodes);
+        Collections.sort(citMinerMain.frequentlyList);
+        Collections.reverse(citMinerMain.frequentlyList);
+
         for (int i = 0; i < nodes.length; i++) {
             ArrayList<Node> arrayListHeadNodes = citMinerMain.getHeadTailFromCutting(nodes[i], vauleYouDefine);
             if (arrayListHeadNodes.size() >= 1) {
                 ArrayList<Node> arrayList = citMinerMain.getNewTreeFromCutting(arrayListHeadNodes, vauleYouDefine);
-                System.out.println("剪切后第" + i + "的序列是:" + arrayList.toString());
+                writeNodes(fileName, "剪切后第" + i + "的序列是:" + arrayList.toString());
                 //开始进行压缩,具体压缩的阀值由出现的最大频率来决定
-                //一直迭代压缩到边的频繁度都不大于最小频繁度
-                for (int j = 3; j >= vauleYouDefine; j--) {
-                    citMinerMain.compressTreetest(arrayList, j);
+                //压缩所有频繁度
+                for (int j = 0; j < citMinerMain.frequentlyList.size(); j++) {
+                    citMinerMain.compressTreetest(arrayList, citMinerMain.frequentlyList.get(j));
                 }
-/*                citMinerMain.compressTreetest(arrayList, 3);
-                citMinerMain.compressTreetest(arrayList, 2);*/
-
                 if (arrayList.get(0).getNodeNumberArrayList().size() <= 1) {
-                    System.out.println("没有符合条件的压缩链" + "\n");
+                    writeNodes(fileName, "没有符合条件的压缩链" + "\n");
                 } else
-                    System.out.println("压缩链是:" + arrayList.get(0).getNodeNumberArrayList().toString() + "\n");
+                    writeNodes(fileName, "压缩链是:" + arrayList.get(0).getNodeNumberArrayList().toString() + "\n");
             } else
-                System.out.print("因为设置的阀值过大,第" + i + "序列不符合的压缩序列" + "\n" + "\n");
+                writeNodes(fileName, "因为设置的阀值过大,第" + i + "序列不符合的压缩序列" + "\n" + "\n");
+
         }
-        System.out.print("\n" + "----------------------------END--------------------------------");
+        System.out.print("\n" + "--------------结果已经输出在D盘---------------------");
     }
 
 
@@ -65,6 +71,17 @@ public class CITMinerMain {
         chan.close();
         in.close();
         return new String(b, 0, len, "GBK");
+    }
+
+    public static void writeNodes(String fileName, String content) {
+        try {
+            //打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
+            FileWriter writer = new FileWriter(fileName, true);
+            writer.write(content);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -107,7 +124,7 @@ public class CITMinerMain {
             for (int j = 0; j < nodes[i].length - 3; j++) {
                 nodesList[i][j] = nodes[i][j + 3];
                 nodesList[i][j].setNodeHead(defaultHeadNode);
-                nodesList[i][j].setSequence(j);  //这里新添加了位置，为了方面下面的查找
+                //nodesList[i][j].setSequence(j);  //这里新添加了位置，为了方面下面的查找
             }
         }
 
@@ -157,7 +174,7 @@ public class CITMinerMain {
      */
     public Node[][] makeCompresssionTree(Node[][] nodes) {
         for (int i = 0; i < nodes.length; i++) {
-
+            Boolean frequentBoolean = false;
             nodes[i][0].setWeightOfNodes(0);
             for (int j = 1; j < nodes[i].length; j++) { //从第二个节点开始算起
                 if (!nodes[i][j].getNodenumber().equals("-1")) {
@@ -172,6 +189,19 @@ public class CITMinerMain {
                         }
                     }
                     nodes[i][j].setTimesOfNodes(timesOfNodes);
+
+                    if (frequentlyList.size() != 0) {
+                        for (Integer aFrequentlyList : frequentlyList) {
+                            if (aFrequentlyList == timesOfNodes)
+                                frequentBoolean = true;
+                        }
+                    }
+                    if (!frequentBoolean) {
+                        if (timesOfNodes >= vauleYouDefine)
+                            frequentlyList.add(timesOfNodes);
+                    }
+
+
                 } else {
                     nodes[i][j].setTimesOfNodes(0);
                     nodes[i][j].setWeightOfNodes(0);
