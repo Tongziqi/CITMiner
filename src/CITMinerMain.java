@@ -15,17 +15,21 @@ import java.util.Iterator;
 public class CITMinerMain {
     protected ArrayList<Node> alistFromCutting = new ArrayList<Node>();
     private ArrayList<Integer> frequentlyList = new ArrayList<Integer>();
-    private static int vauleYouDefine = 3;
+    private static int vauleYouDefine = 2;
 
 
     public static void main(String[] args) throws IOException {
         String fileName = "D:/输出的结果.txt";
         CITMinerMain citMinerMain = new CITMinerMain();
         long timeMillis = System.currentTimeMillis();  // 记录系统开始的时间
+
         File filePath = new File("D:" + File.separator + "test.txt");
         String allNodes = citMinerMain.getNodes(filePath);
+
         Node[][] nodes = citMinerMain.getNodeListWithHeadAndTailNodes(citMinerMain.getNodesListFromText(allNodes));
+
         nodes = citMinerMain.makeCompresssionTree(nodes);
+
         Collections.sort(citMinerMain.frequentlyList);
         Collections.reverse(citMinerMain.frequentlyList);
 
@@ -33,7 +37,7 @@ public class CITMinerMain {
             ArrayList<Node> arrayListHeadNodes = citMinerMain.getHeadTailFromCutting(nodes[i], vauleYouDefine);
             if (arrayListHeadNodes.size() >= 1) {
                 ArrayList<Node> arrayList = citMinerMain.getNewTreeFromCutting(arrayListHeadNodes, vauleYouDefine);
-                writeNodes(fileName, "剪切后第" + i + "的序列是:" + arrayList.toString());
+                writeNodes(fileName, "剪切后第" + i + "的序列是:" + arrayList.toString() + "\n");
                 //开始进行压缩,具体压缩的阀值由出现的最大频率来决定
                 //压缩所有频繁度
                 for (int j = 0; j < citMinerMain.frequentlyList.size(); j++) {
@@ -44,10 +48,10 @@ public class CITMinerMain {
                 } else
                     writeNodes(fileName, "压缩链是:" + arrayList.get(0).getNodeNumberArrayList().toString() + "\n");
             } else
-                writeNodes(fileName, "因为设置的阀值过大,第" + i + "序列不符合的压缩序列" + "\n" + "\n");
+                writeNodes(fileName, "因为设置的阀值过大,第" + i + "序列不符合的压缩序列" + "\n");
         }
-        writeNodes(fileName, "\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 ");
-        
+        writeNodes(fileName, "\n" + "\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 ");
+
         System.out.println("\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 ");
         System.out.print("\n" + "-----------------------结束-------------------------");
     }
@@ -126,7 +130,6 @@ public class CITMinerMain {
             for (int j = 0; j < nodes[i].length - 3; j++) {
                 nodesList[i][j] = nodes[i][j + 3];
                 nodesList[i][j].setNodeHead(defaultHeadNode);
-                //nodesList[i][j].setSequence(j);  //这里新添加了位置，为了方面下面的查找
             }
         }
 

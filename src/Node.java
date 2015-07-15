@@ -27,15 +27,6 @@ public class Node {
         return nodeNumberArrayList;
     }
 
-    public int getSequence() {
-        return sequence;
-    }
-
-    public void setSequence(int sequence) {
-        this.sequence = sequence;
-    }
-
-
     public ArrayList<Node> arrayListNodeTail = new ArrayList<Node>();
 
 
