@@ -6,6 +6,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 
 /**
@@ -22,13 +23,12 @@ public class CITMinerMain {
         String fileName = "D:/输出的结果.txt";
         CITMinerMain citMinerMain = new CITMinerMain();
         long timeMillis = System.currentTimeMillis();  // 记录系统开始的时间
-
         File filePath = new File("D:" + File.separator + "test.txt");
         String allNodes = citMinerMain.getNodes(filePath);
 
-        Node[][] nodes = citMinerMain.getNodeListWithHeadAndTailNodes(citMinerMain.getNodesListFromText(allNodes));
-
-        nodes = citMinerMain.makeCompresssionTree(nodes);
+        Node[][] nodes = citMinerMain.getNodesListFromText(allNodes);
+        //Node[][] nodes = citMinerMain.getNodeListWithHeadAndTailNodes(citMinerMain.getNodesListFromText(allNodes));
+        nodes = citMinerMain.quickMakeCompressTree(nodes);
 
         Collections.sort(citMinerMain.frequentlyList);
         Collections.reverse(citMinerMain.frequentlyList);
@@ -50,9 +50,9 @@ public class CITMinerMain {
             } else
                 writeNodes(fileName, "因为设置的阀值过大,第" + i + "序列不符合的压缩序列" + "\n");
         }
-        writeNodes(fileName, "\n" + "\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 ");
-
+        writeNodes(fileName, "\r----------------------------执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 " + "\n" + "\r");
         System.out.println("\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 ");
+        //System.out.println("\r该步骤执行耗时 : " + citMinerMain.timeMillis + " 毫秒 ");
         System.out.print("\n" + "-----------------------结束-------------------------");
     }
 
@@ -95,45 +95,73 @@ public class CITMinerMain {
      * 把文件里面的数字组成一个二维Node链表
      *
      * @param nodesFronText 表示从文件里面读取的数值
-     * @return 一个二维Node链表
+     * @return 一个二维Node链表 一个带头结点和尾节点的二维Node链表
      */
     public Node[][] getNodesListFromText(String nodesFronText) {
+        Node firstNodeHeadNode = new Node("-2"); //默认第一个结点的头结点为-2
+        Node defaultHeadNode = new Node("-3");  //默认头结点为-3
+
         String lineNumbersOfArray[] = nodesFronText.split("\n");
         int arrayListnumbers = lineNumbersOfArray.length;
-        Node nodesList[][] = new Node[arrayListnumbers][];
-        for (int i = 0; i < arrayListnumbers; i++) {
-            String numbersList[] = lineNumbersOfArray[i].split(" |\r");
-            nodesList[i] = new Node[numbersList.length];
+        Node nodesList[][] = new Node[arrayListnumbers][];  //控制行数
 
-            for (int j = 0; j < numbersList.length; j++) {
-                nodesList[i][j] = new Node(String.valueOf(numbersList[j]));  //每一个Node不仅仅是一个数值而是一个对象
+        for (int i = 0; i < arrayListnumbers; i++) {
+            String numbersList[] = lineNumbersOfArray[i].split(" |\r");  //一行有几个数
+            nodesList[i] = new Node[numbersList.length - 3]; //每行去掉前三个数
+
+            for (int j = 0; j < numbersList.length - 3; j++) {
+                nodesList[i][j] = new Node(String.valueOf(numbersList[j + 3]));  //每一个Node不仅仅是一个数值而是一个对象
+                nodesList[i][j].setNodeHead(defaultHeadNode);
+                //合并功能
+                if (j != nodesList[i].length - 1) {
+                    if (j == 0) {
+                        nodesList[i][j].setNodeHead(firstNodeHeadNode); //头结点添加firstNodeHeadNode
+                    } else {
+                        if (!nodesList[i][j].getNodenumber().equals("-1")) {
+                            nodesList[i][j].setNodeHead(nodesList[i][j - 1]); //如果后面的数不是-1,直接连接
+                            nodesList[i][j - 1].addNodeTail(nodesList[i][j]);
+                        }
+                        if (nodesList[i][j].getNodenumber().equals("-1")) { //如果是-1,根据-1的次数来判定位置
+                            //这里numberOfLayer表示-1出现了几次 出现几次就找几次nodesList[i][j - 1].getNodeHead()
+                            int numberOfLayer = 1;
+                            for (int k = j + 1; k < nodesList[i].length - 1; k++) {
+                                if (numbersList[k + 3].equals("-1")) {
+                                    numberOfLayer++;
+                                } else {
+                                    break;
+                                }
+                            }
+                            if (j + numberOfLayer != nodesList[i].length - 1) { //如果是最后一个位置，即-1时候，默认头结点 排除最后一个位置
+                                Node node = nodesList[i][j - 1].getNodeHead();
+                                //这个循环是为了循环找getNodeHead
+                                for (int num = 1; num < numberOfLayer; num++) {
+                                    node = node.getNodeHead();
+                                    nodesList[i][j + num] = new Node(String.valueOf(numbersList[j + 3 + num])); //这里新建跳过的-1节点
+                                }
+                                nodesList[i][j + numberOfLayer] = new Node(String.valueOf(numbersList[j + 3 + numberOfLayer]));
+                                nodesList[i][j + numberOfLayer].setNodeHead(node);
+                                node.addNodeTail(nodesList[i][j + numberOfLayer]);
+                                j += numberOfLayer;
+                            }
+                        }
+                    }
+                }
             }
         }
         return nodesList;
     }
 
     /**
-     * nodesnodes
+     * nodesnodes  该模块被合并到getNodesListFromText,减少一次循环读取数据
      * 将获得的二维Node链表转换成一个带头结点和尾节点的二维Node链表
      *
      * @param nodes 获得的二维Node链表
      * @return 一个带头结点和尾节点的二维Node链表
      */
     public Node[][] getNodeListWithHeadAndTailNodes(Node[][] nodes) {
-        Node nodesList[][] = new Node[nodes.length][];
-        Node defaultHeadNode = new Node("-3");  //默认头结点为-3
         Node firstNodeHeadNode = new Node("-2"); //默认第一个结点的头结点为-2
 
-        //初始化Node,完成两个工作，第一：去掉前三个节点；第二：每个节点添加默认的头节点
-        for (int i = 0; i < nodes.length; i++) {
-            nodesList[i] = new Node[nodes[i].length - 3];
-            for (int j = 0; j < nodes[i].length - 3; j++) {
-                nodesList[i][j] = nodes[i][j + 3];
-                nodesList[i][j].setNodeHead(defaultHeadNode);
-            }
-        }
-
-        for (Node[] aNodesList : nodesList) {
+        for (Node[] aNodesList : nodes) {
             for (int j = 0; j < aNodesList.length; j++) {
                 if (j != aNodesList.length - 1) {
                     if (j == 0) {
@@ -168,11 +196,13 @@ public class CITMinerMain {
                 }
             }
         }
-        return nodesList;
+        return nodes;
     }
 
     /**
      * 构建一颗压缩树，即添加权重和出现的次数
+     * 这一步能够合并么？预计不能合并，必须把树建立好了之后才能判断频繁度 目前失效消耗最大的 占90%
+     * 废弃掉，改算法，迭代算法两次即可
      *
      * @param nodes 原始树
      * @return 带权重和次数的树
@@ -195,7 +225,7 @@ public class CITMinerMain {
                     }
                     nodes[i][j].setTimesOfNodes(timesOfNodes);
 
-                    if (frequentlyList.size() != 0) {
+                    if (frequentlyList.size() != 0) {  //这里面frequentlyList是出现的所有频繁度
                         for (Integer aFrequentlyList : frequentlyList) {
                             if (aFrequentlyList == timesOfNodes)
                                 frequentBoolean = true;
@@ -213,8 +243,57 @@ public class CITMinerMain {
                 }
             }
         }
-
         return nodes;
+    }
+
+    public Node[][] quickMakeCompressTree(final Node[][] nodes) {
+        int defaultValue = 1;
+        Boolean frequentBoolean = false;
+        HashMap<ArrayList<Integer>, Integer> hashMap = new HashMap<ArrayList<Integer>, Integer>();
+        //第一次循环 找出所有的频繁次数
+        for (Node[] node : nodes) {
+            for (int j = 1; j < node.length; j++) {
+                if (!node[j].getNodenumber().equals("-1")) {
+                    ArrayList<Integer> arrayListKey = new ArrayList<Integer>();
+                    arrayListKey.add(Integer.valueOf(node[j].getNodenumber()));
+                    arrayListKey.add(Integer.valueOf(node[j].getNodeHead().getNodenumber()));
+                    if (hashMap.containsKey(arrayListKey)) {
+                        hashMap.replace(arrayListKey, hashMap.get(arrayListKey) + 1);
+                    } else hashMap.put(arrayListKey, defaultValue);
+                }
+            }
+        }
+        //第二次循环 为Node[][]更新压缩树的边频繁度值
+        for (Node[] node : nodes) {
+            node[0].setWeightOfNodes(0);
+            node[0].setTimesOfNodes(0);
+            for (int n = 1; n < node.length; n++) { //从第二个节点开始算起
+                node[n].setWeightOfNodes(1);
+                if (!node[n].getNodenumber().equals("-1")) {
+                    ArrayList<Integer> arrayListKey = new ArrayList<Integer>();
+                    arrayListKey.add(Integer.valueOf(node[n].getNodenumber()));
+                    arrayListKey.add(Integer.valueOf(node[n].getNodeHead().getNodenumber()));
+                    if (hashMap.containsKey(arrayListKey)) {
+                        node[n].setTimesOfNodes(hashMap.get(arrayListKey));
+                    }
+                }
+            }
+        }
+
+        for (ArrayList<Integer> arrayList : hashMap.keySet()) {
+            if (frequentlyList.size() != 0) {  //这里面frequentlyList是出现的所有频繁度
+                for (Integer aFrequentlyList : frequentlyList) {
+                    if (aFrequentlyList.equals(hashMap.get(arrayList)))
+                        frequentBoolean = true;
+                }
+            }
+            if (!frequentBoolean) {
+                if (hashMap.get(arrayList) >= vauleYouDefine)
+                    frequentlyList.add(hashMap.get(arrayList));
+            }
+        }
+        return nodes;
+
     }
 
     /**
