@@ -14,8 +14,8 @@ import java.util.Iterator;
  * CITMiner算法 童小托
  */
 public class CITMinerMain {
-    protected ArrayList<Node> alistFromCutting = new ArrayList<Node>();
-    private ArrayList<Integer> frequentlyList = new ArrayList<Integer>();
+    protected ArrayList<Node> alistFromCutting = new ArrayList<Node>(); // 这里控制仅仅有一NodeList,便于添加数据
+    private ArrayList<Integer> frequentlyList = new ArrayList<Integer>();  //这里记录所有出现的频繁度，只压缩出现的频繁度
     private static int vauleYouDefine = 2;
 
 
@@ -27,8 +27,7 @@ public class CITMinerMain {
         String allNodes = citMinerMain.getNodes(filePath);
 
         Node[][] nodes = citMinerMain.getNodesListFromText(allNodes);
-        //Node[][] nodes = citMinerMain.getNodeListWithHeadAndTailNodes(citMinerMain.getNodesListFromText(allNodes));
-        nodes = citMinerMain.quickMakeCompressTree(nodes);
+        nodes = citMinerMain.makeCompressTree(nodes);
 
         Collections.sort(citMinerMain.frequentlyList);
         Collections.reverse(citMinerMain.frequentlyList);
@@ -36,7 +35,7 @@ public class CITMinerMain {
         for (int i = 0; i < nodes.length; i++) {
             ArrayList<Node> arrayListHeadNodes = citMinerMain.getHeadTailFromCutting(nodes[i], vauleYouDefine);
             if (arrayListHeadNodes.size() >= 1) {
-                ArrayList<Node> arrayList = citMinerMain.getNewTreeFromCutting(arrayListHeadNodes, vauleYouDefine);
+                ArrayList<Node> arrayList = citMinerMain.getNewTreeFromCutting(arrayListHeadNodes, vauleYouDefine).get(0);
                 writeNodes(fileName, "剪切后第" + i + "的序列是:" + arrayList.toString() + "\n");
                 //开始进行压缩,具体压缩的阀值由出现的最大频率来决定
                 //压缩所有频繁度
@@ -95,7 +94,7 @@ public class CITMinerMain {
      * 把文件里面的数字组成一个二维Node链表
      *
      * @param nodesFronText 表示从文件里面读取的数值
-     * @return 一个二维Node链表 一个带头结点和尾节点的二维Node链表
+     * @return 一个带头结点和尾节点的二维Node链表
      */
     public Node[][] getNodesListFromText(String nodesFronText) {
         Node firstNodeHeadNode = new Node("-2"); //默认第一个结点的头结点为-2
@@ -152,101 +151,12 @@ public class CITMinerMain {
     }
 
     /**
-     * nodesnodes  该模块被合并到getNodesListFromText,减少一次循环读取数据
-     * 将获得的二维Node链表转换成一个带头结点和尾节点的二维Node链表
-     *
-     * @param nodes 获得的二维Node链表
-     * @return 一个带头结点和尾节点的二维Node链表
-     */
-    public Node[][] getNodeListWithHeadAndTailNodes(Node[][] nodes) {
-        Node firstNodeHeadNode = new Node("-2"); //默认第一个结点的头结点为-2
-
-        for (Node[] aNodesList : nodes) {
-            for (int j = 0; j < aNodesList.length; j++) {
-                if (j != aNodesList.length - 1) {
-                    if (j == 0) {
-                        aNodesList[j].setNodeHead(firstNodeHeadNode); //头结点添加firstNodeHeadNode
-                    } else {
-                        if (!aNodesList[j].getNodenumber().equals("-1")) {
-                            aNodesList[j].setNodeHead(aNodesList[j - 1]); //如果后面的数不是-1,直接连接
-                            aNodesList[j - 1].addNodeTail(aNodesList[j]);
-                        }
-                        if (aNodesList[j].getNodenumber().equals("-1")) { //如果是-1,根据-1的次数来判定位置
-                            //这里numberOfLayer表示-1出现了几次 出现几次就找几次nodesList[i][j - 1].getNodeHead()
-                            int numberOfLayer = 1;
-                            for (int k = j + 1; k < aNodesList.length - 1; k++) {
-                                if (aNodesList[k].getNodenumber().equals("-1")) {
-                                    numberOfLayer++;
-                                } else {
-                                    break;
-                                }
-                            }
-                            if (j + numberOfLayer != aNodesList.length - 1) { //如果是最后一个位置，即-1时候，默认头结点 排除最后一个位置
-                                Node node = aNodesList[j - 1].getNodeHead();
-                                //这个循环是为了循环找getNodeHead
-                                for (int num = 0; num < numberOfLayer - 1; num++) {
-                                    node = node.getNodeHead();
-                                }
-                                aNodesList[j + numberOfLayer].setNodeHead(node);
-                                node.addNodeTail(aNodesList[j + numberOfLayer]);
-                                j += numberOfLayer;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return nodes;
-    }
-
-    /**
      * 构建一颗压缩树，即添加权重和出现的次数
-     * 这一步能够合并么？预计不能合并，必须把树建立好了之后才能判断频繁度 目前失效消耗最大的 占90%
-     * 废弃掉，改算法，迭代算法两次即可
      *
      * @param nodes 原始树
      * @return 带权重和次数的树
      */
-    public Node[][] makeCompresssionTree(Node[][] nodes) {
-        for (int i = 0; i < nodes.length; i++) {
-            Boolean frequentBoolean = false;
-            nodes[i][0].setWeightOfNodes(0);
-            for (int j = 1; j < nodes[i].length; j++) { //从第二个节点开始算起
-                if (!nodes[i][j].getNodenumber().equals("-1")) {
-                    int timesOfNodes = 0;
-                    nodes[i][j].setWeightOfNodes(1);
-                    for (int m = 0; m < nodes.length; m++) {
-                        for (int n = 1; n < nodes[m].length; n++) {
-                            if (nodes[i][j].getNodenumber().equals(nodes[m][n].getNodenumber()) &&
-                                    nodes[i][j].getNodeHead().getNodenumber().equals(nodes[m][n].getNodeHead().getNodenumber())) {
-                                timesOfNodes++;
-                            }
-                        }
-                    }
-                    nodes[i][j].setTimesOfNodes(timesOfNodes);
-
-                    if (frequentlyList.size() != 0) {  //这里面frequentlyList是出现的所有频繁度
-                        for (Integer aFrequentlyList : frequentlyList) {
-                            if (aFrequentlyList == timesOfNodes)
-                                frequentBoolean = true;
-                        }
-                    }
-                    if (!frequentBoolean) {
-                        if (timesOfNodes >= vauleYouDefine)
-                            frequentlyList.add(timesOfNodes);
-                    }
-
-
-                } else {
-                    nodes[i][j].setTimesOfNodes(0);
-                    nodes[i][j].setWeightOfNodes(0);
-                }
-            }
-        }
-        return nodes;
-    }
-
-    public Node[][] quickMakeCompressTree(final Node[][] nodes) {
+    public Node[][] makeCompressTree(final Node[][] nodes) {
         int defaultValue = 1;
         Boolean frequentBoolean = false;
         HashMap<ArrayList<Integer>, Integer> hashMap = new HashMap<ArrayList<Integer>, Integer>();
@@ -280,6 +190,7 @@ public class CITMinerMain {
             }
         }
 
+        //这里，把循环的次数记录到列表中，方便后期压缩用
         for (ArrayList<Integer> arrayList : hashMap.keySet()) {
             if (frequentlyList.size() != 0) {  //这里面frequentlyList是出现的所有频繁度
                 for (Integer aFrequentlyList : frequentlyList) {
@@ -298,6 +209,7 @@ public class CITMinerMain {
 
     /**
      * 找出所有压缩后可以构建树的节点
+     * 至里面仅仅遍历了一遍数据即可完成删边和清理工作，比论文的简单.
      *
      * @param nodes          原始序列
      * @param timesYouDefine 定义的阀值
@@ -329,19 +241,20 @@ public class CITMinerMain {
      * 找到压缩后的子树
      *
      * @param arrayList 传入getHeadTailFromCutting返回的节点
-     * @return 一颗压缩后的树 但是有问题 如果getHeadTailFromCutting返回了不止一个节点 那么节点构建的树就不止一个 目前先返回一颗树
+     * @return 一颗ArrayList<ArrayList<Node>>,里面可以存放很多颗树，一般只返回一棵树
      */
-    public ArrayList<Node> getNewTreeFromCutting(ArrayList<Node> arrayList, int timesYouDefine) {
-        ArrayList<Node> nodesList = new ArrayList<Node>();
-        Node node = arrayList.get(0);
+    public ArrayList<ArrayList<Node>> getNewTreeFromCutting(ArrayList<Node> arrayList, int timesYouDefine) {
 
-        addNodeFromTree(node, timesYouDefine);
-        nodesList = (ArrayList<Node>) alistFromCutting.clone();
-        nodesList.add(0, node);
-        for (Node aNodesList : nodesList) {
-            aNodesList.setNodeNumberArrayList(aNodesList.getNodenumber(), aNodesList.getWeightOfNodes());
+        ArrayList<ArrayList<Node>> nodesList = new ArrayList<ArrayList<Node>>();
+        for (Node aNode : arrayList) {
+            addNodeFromTree(aNode, timesYouDefine);
+            alistFromCutting.add(0, aNode);
+            for (Node aNodesList : alistFromCutting) {
+                aNodesList.setNodeNumberArrayList(aNodesList.getNodenumber(), aNodesList.getWeightOfNodes());
+            }
+            nodesList.add((ArrayList<Node>) alistFromCutting.clone()); //这里不能只添加alistFromCutting，因为后面要删掉alistFromCutting
+            alistFromCutting.clear(); //默认只有一个alistFromCutting，用完删掉
         }
-        alistFromCutting.clear();
         return nodesList;
     }
 
@@ -368,6 +281,7 @@ public class CITMinerMain {
 
     /**
      * 对树进行压缩
+     * 这里面会遍历一遍所有的数据
      *
      * @param arrayList      剪切后的树
      * @param timesYouDefine 定义压缩的阀值

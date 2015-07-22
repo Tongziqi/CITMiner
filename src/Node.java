@@ -9,7 +9,6 @@ public class Node {
     public String nodenumber;  //节点的数值
     public int timesOfNodes; //出现的次数
     public int weightOfNodes; //节点的权重
-    public int sequence; //在链表中的位置 方便剪切查找
 
     public void addNodeNumberandtime(NodeNumber nodeNumberandtime) {
         nodeNumberArrayList.add(nodeNumberandtime);
