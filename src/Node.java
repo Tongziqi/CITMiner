@@ -26,6 +26,12 @@ public class Node {
         return nodeNumberArrayList;
     }
 
+    public void addWeightOfNodesInNodeNumberArrayList() {
+        for (NodeNumber aNodeNumber : nodeNumberArrayList) {
+            aNodeNumber.setWeightOfNodes(aNodeNumber.getWeightOfNodes() + 1);
+        }
+    }
+
     public ArrayList<Node> arrayListNodeTail = new ArrayList<Node>();
 
 

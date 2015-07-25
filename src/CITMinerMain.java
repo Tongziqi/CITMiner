@@ -16,6 +16,7 @@ import java.util.Iterator;
 public class CITMinerMain {
     protected ArrayList<Node> alistFromCutting = new ArrayList<Node>(); // 这里控制仅仅有一NodeList,便于添加数据
     private ArrayList<Integer> frequentlyList = new ArrayList<Integer>();  //这里记录所有出现的频繁度，只压缩出现的频繁度
+    private ArrayList<ArrayList<Node>> allNodeListFromCutting = new ArrayList<ArrayList<Node>>(); //把所有剪切后的树记录下来,用来压缩用
     private static int vauleYouDefine = 2;
 
 
@@ -32,23 +33,34 @@ public class CITMinerMain {
         Collections.sort(citMinerMain.frequentlyList);
         Collections.reverse(citMinerMain.frequentlyList);
 
+        //完成所有树的剪切工作
+        //这里不一边剪切一边压缩 因为这样无法用每次压缩的所有结果进行闭合化
+        //为什么修改过后算法变得那么慢？因为原来是剪切一条链后，就对其进行压缩，一次迭代压缩完所有的频繁度，而且只写入文档最后结果
+        //时间的差异大都在写入文档
+        //但是现在为了闭合化，需要压缩一个频繁度的所有所有链，找出公共部分，即为频繁子树，所以需要记录每一个频繁度的所有压缩链，就不能安装原来的算法了，需要同时压缩，还要记录中间值。
         for (int i = 0; i < nodes.length; i++) {
             ArrayList<Node> arrayListHeadNodes = citMinerMain.getHeadTailFromCutting(nodes[i], vauleYouDefine);
             if (arrayListHeadNodes.size() >= 1) {
-                ArrayList<Node> arrayList = citMinerMain.getNewTreeFromCutting(arrayListHeadNodes, vauleYouDefine).get(0);
+
+                ArrayList<Node> arrayList = citMinerMain.getNewTreeFromCutting(arrayListHeadNodes, vauleYouDefine).get(0); //这里改了就行 以后把这里改成迭代的形式，获得所有的arraylist不只get(0)
+                citMinerMain.allNodeListFromCutting.add(arrayList); //把结果添加进去
+
                 writeNodes(fileName, "剪切后第" + i + "的序列是:" + arrayList.toString() + "\n");
-                //开始进行压缩,具体压缩的阀值由出现的最大频率来决定
-                //压缩所有频繁度
-                for (int j = 0; j < citMinerMain.frequentlyList.size(); j++) {
-                    citMinerMain.compressTreetest(arrayList, citMinerMain.frequentlyList.get(j));
-                }
-                if (arrayList.get(0).getNodeNumberArrayList().size() <= 1) {
-                    writeNodes(fileName, "没有符合条件的压缩链" + "\n");
-                } else
-                    writeNodes(fileName, "压缩链是:" + arrayList.get(0).getNodeNumberArrayList().toString() + "\n");
             } else
                 writeNodes(fileName, "因为设置的阀值过大,第" + i + "序列不符合的压缩序列" + "\n");
         }
+        writeNodes(fileName, "---------------------------------------------------------------------------------------------" + "\n");
+        //开始进行压缩,具体压缩的阀值由出现的最大频率来决定
+        for (int j = 0; j < citMinerMain.frequentlyList.size(); j++) {
+            for (ArrayList<Node> arrayList : citMinerMain.allNodeListFromCutting) {
+                citMinerMain.compressTreetest(arrayList, citMinerMain.frequentlyList.get(j));
+                if (arrayList.get(0).getNodeNumberArrayList().size() <= 1) {
+                    writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的第" + citMinerMain.allNodeListFromCutting.indexOf(arrayList) + "条序列" + "没有符合条件的压缩链" + "\n" + "\r");
+                } else
+                    writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的第" + citMinerMain.allNodeListFromCutting.indexOf(arrayList) + "条序列" + "压缩链是:" + arrayList.get(0).getNodeNumberArrayList().toString() + "\n" + "\r");
+            }
+        }
+
         writeNodes(fileName, "\r----------------------------执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 " + "\n" + "\r");
         System.out.println("\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 ");
         //System.out.println("\r该步骤执行耗时 : " + citMinerMain.timeMillis + " 毫秒 ");
@@ -63,6 +75,7 @@ public class CITMinerMain {
      * @return 返回一个String类型的字符串
      * @throws IOException 抛出异常
      */
+
     public String getNodes(File filePath) throws IOException {
         FileInputStream in = new FileInputStream(filePath);
         FileChannel chan = in.getChannel();
@@ -292,8 +305,9 @@ public class CITMinerMain {
         for (int i = 0; i < arrayList.size(); i++) {  //这里不用foreach是因为要对arrayList进行删除工作
             if (arrayList.get(i).getTimesOfNodes() >= timesYouDefine) {
                 for (Node broNode : getBrotherNodes(arrayList.get(i))) {
-                    broNode.addWeightOfNodes();  //如果大于自定义的阀值，兄弟节点+1
-                    broNode.getNodeNumberArrayList().set(0, new NodeNumber(broNode.getNodenumber(), broNode.weightOfNodes));
+                    //broNode.addWeightOfNodes();  //如果大于自定义的阀值，兄弟节点+1 这里默认加1 因为设定的都是1
+                    //broNode.getNodeNumberArrayList().set(0, new NodeNumber(broNode.getNodenumber(), broNode.getWeightOfNodes()));
+                    broNode.addWeightOfNodesInNodeNumberArrayList();//解决了节点链有兄弟的情况
                 }
                 for (Node childNode : arrayList.get(i).getArrayListNodeTail()) {
                     arrayList.get(i).getNodeHead().addNodeTail(childNode);  ////添加尾节点
