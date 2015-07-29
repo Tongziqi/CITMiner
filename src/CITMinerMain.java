@@ -17,6 +17,8 @@ public class CITMinerMain {
     protected ArrayList<Node> alistFromCutting = new ArrayList<Node>(); // 这里控制仅仅有一NodeList,便于添加数据
     private ArrayList<Integer> frequentlyList = new ArrayList<Integer>();  //这里记录所有出现的频繁度，只压缩出现的频繁度
     private ArrayList<ArrayList<Node>> allNodeListFromCutting = new ArrayList<ArrayList<Node>>(); //把所有剪切后的树记录下来,用来压缩用
+    private ArrayList<ArrayList<NodeNumber>> arrayListsFromCompress = new ArrayList<ArrayList<NodeNumber>>(); //记录每一次的压缩的压缩链
+    private ArrayList<NodeBranch> longgestCommonList = new ArrayList<NodeBranch>();//存储着最长公共链
     private static int vauleYouDefine = 2;
 
 
@@ -59,6 +61,9 @@ public class CITMinerMain {
                 } else
                     writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的第" + citMinerMain.allNodeListFromCutting.indexOf(arrayList) + "条序列" + "压缩链是:" + arrayList.get(0).getNodeNumberArrayList().toString() + "\n" + "\r");
             }
+            citMinerMain.longgestCommonList = citMinerMain.getLongestCommonList(citMinerMain.arrayListsFromCompress, citMinerMain.frequentlyList.get(j));
+            citMinerMain.arrayListsFromCompress.clear();
+            writeNodes(fileName, "公共链是" + citMinerMain.longgestCommonList.toString() + "\n");
         }
 
         writeNodes(fileName, "\r----------------------------执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 " + "\n" + "\r");
@@ -298,12 +303,17 @@ public class CITMinerMain {
      *
      * @param arrayList      剪切后的树
      * @param timesYouDefine 定义压缩的阀值
-     * @return 应该返回一个字符串
+     * @return 应该返回一个字符串 字符串里面包含压缩过的数据
      */
     public ArrayList<Node> compressTreetest(ArrayList<Node> arrayList, int timesYouDefine) {
-
+        boolean whetherAddHead = true;
+        ArrayList<NodeNumber> aNodeNumberArrayList = new ArrayList<NodeNumber>(); //记录被压缩的数据
         for (int i = 0; i < arrayList.size(); i++) {  //这里不用foreach是因为要对arrayList进行删除工作
             if (arrayList.get(i).getTimesOfNodes() >= timesYouDefine) {
+                if (whetherAddHead) {
+                    aNodeNumberArrayList.addAll(arrayList.get(i).getNodeHead().getNodeNumberArrayList()); //只能添加一次 添加头的信息 每次压缩形成压缩链只有一个头结点 和树没有关系了 已经形成单独的链了
+                    whetherAddHead = false;
+                }
                 for (Node broNode : getBrotherNodes(arrayList.get(i))) {
                     //broNode.addWeightOfNodes();  //如果大于自定义的阀值，兄弟节点+1 这里默认加1 因为设定的都是1
                     //broNode.getNodeNumberArrayList().set(0, new NodeNumber(broNode.getNodenumber(), broNode.getWeightOfNodes()));
@@ -314,12 +324,13 @@ public class CITMinerMain {
                     childNode.setNodeHead(arrayList.get(i).getNodeHead()); //同时添加父节点
                 }
                 arrayList.get(i).getNodeHead().addNodeNumberandtimeList(arrayList.get(i).getNodeNumberArrayList());
+                aNodeNumberArrayList.addAll(arrayList.get(i).getNodeNumberArrayList()); //这里面记录被压缩的数据
                 arrayList.get(i).getNodeHead().delNodeTail(arrayList.get(i));//删除该节点与父节点的关系
                 arrayList.remove(arrayList.get(i));
                 i--;
             }
         }
-
+        arrayListsFromCompress.add(aNodeNumberArrayList); //这里添加压缩的链 就是在这次压缩过程中压缩的链
         return arrayList;
     }
 
@@ -338,5 +349,61 @@ public class CITMinerMain {
             }
         }
         return nodeArrayList;
+    }
+
+
+    /**
+     * 获得最大公共链
+     *
+     * @param arrayLists      所有的压缩链 就是那些链被压缩了
+     * @param timesYouDinfine 压缩的阀值
+     * @return 最大的公共链
+     */
+    public ArrayList<NodeBranch> getLongestCommonList(ArrayList<ArrayList<NodeNumber>> arrayLists, int timesYouDinfine) {
+        ArrayList<NodeNumber> longestCommonList;
+        ArrayList<NodeBranch> lastLongestCommonList = new ArrayList<NodeBranch>();
+        ArrayList<ArrayList<NodeNumber>> newArrayLists = (ArrayList<ArrayList<NodeNumber>>) arrayLists.clone();
+        Collections.sort(newArrayLists, new SortByNodeNumberSize());
+        longestCommonList = newArrayLists.get(0);//这里得到最短的压缩链
+        int longest = arrayLists.indexOf(longestCommonList);
+        ArrayList<ArrayList<NodeBranch>> allnodeBranches = getNodeBranchFromNodeNumber(arrayLists);
+        ArrayList<NodeBranch> longestNodeBranches = allnodeBranches.get(longest);  //这里找出最短的压缩链
+
+        //接下来需要判断最短的压缩链在其他压缩链中有没有出现
+        for (NodeBranch longestnodeBranch : longestNodeBranches) {
+            for (ArrayList<NodeBranch> arrayList : allnodeBranches) {
+                for (NodeBranch allnodeBranch : arrayList) {
+                    if (allnodeBranch.equals(longestnodeBranch)) {
+                        timesYouDinfine = timesYouDinfine - 1;   //这里控制出现的次数 每出现一次就减去1 如果最后是负值或者为0,即满足条件
+                        break;  //但是现在只能得到一条
+                    }
+                }
+            }
+            if (timesYouDinfine <= 0)
+                lastLongestCommonList.add(longestnodeBranch);
+        }
+
+
+        return lastLongestCommonList;
+    }
+
+
+    /**
+     * 把压缩链变成一个链表 里面放着所有的边
+     *
+     * @param arrayListNodeNumber 需要处理的压缩链
+     * @return 一个存着所有边的链表
+     */
+    public ArrayList<ArrayList<NodeBranch>> getNodeBranchFromNodeNumber(ArrayList<ArrayList<NodeNumber>> arrayListNodeNumber) {
+        ArrayList<ArrayList<NodeBranch>> nodeBranches = new ArrayList<ArrayList<NodeBranch>>();
+        ArrayList<NodeBranch> aNodeBranches = new ArrayList<NodeBranch>();
+        for (ArrayList<NodeNumber> anArrayListNodeNumber : arrayListNodeNumber) {
+            for (int j = 1; j < anArrayListNodeNumber.size(); j++) {
+                aNodeBranches.add(new NodeBranch(Integer.valueOf(anArrayListNodeNumber.get(Math.abs(j - anArrayListNodeNumber.get(j).getWeightOfNodes())).getNodenumber()), Integer.valueOf(anArrayListNodeNumber.get(j).getNodenumber())));
+            }
+            nodeBranches.add((ArrayList<NodeBranch>) aNodeBranches.clone());
+            aNodeBranches.clear();
+        }
+        return nodeBranches;
     }
 }
