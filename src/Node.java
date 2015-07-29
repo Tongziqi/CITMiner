@@ -26,9 +26,9 @@ public class Node {
         return nodeNumberArrayList;
     }
 
-    public void addWeightOfNodesInNodeNumberArrayList() {
+    public void addWeightOfNodesInNodeNumberArrayList(int num) {  //不能都加1啊大哥！！！！！！！！！
         for (NodeNumber aNodeNumber : nodeNumberArrayList) {
-            aNodeNumber.setWeightOfNodes(aNodeNumber.getWeightOfNodes() + 1);
+            aNodeNumber.addWeightOfNodes(num);
         }
     }
 
@@ -67,10 +67,6 @@ public class Node {
 
     public void setWeightOfNodes(int weightOfNodes) {
         this.weightOfNodes = weightOfNodes;
-    }
-
-    public void addWeightOfNodes() {
-        this.weightOfNodes = weightOfNodes + 1;
     }
 
 

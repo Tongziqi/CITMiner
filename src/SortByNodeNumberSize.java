@@ -15,8 +15,9 @@ public class SortByNodeNumberSize implements Comparator {
     public int compare(Object o1, Object o2) {
         ArrayList<NodeNumber> arrayList1 = (ArrayList<NodeNumber>) o1;
         ArrayList<NodeNumber> arrayList2 = (ArrayList<NodeNumber>) o2;
-        if (arrayList1.size() < arrayList2.size())
-            return -1;
-        return 1;
+        //if (arrayList1.size() < arrayList2.size())
+         //   return -1;
+       // return 1;
+        return arrayList1.size() - arrayList2.size();// 正确的方式
     }
 }

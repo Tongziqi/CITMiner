@@ -56,16 +56,15 @@ public class CITMinerMain {
         for (int j = 0; j < citMinerMain.frequentlyList.size(); j++) {
             for (ArrayList<Node> arrayList : citMinerMain.allNodeListFromCutting) {
                 citMinerMain.compressTreetest(arrayList, citMinerMain.frequentlyList.get(j));
-                if (arrayList.get(0).getNodeNumberArrayList().size() <= 1) {
-                    writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的第" + citMinerMain.allNodeListFromCutting.indexOf(arrayList) + "条序列" + "没有符合条件的压缩链" + "\n" + "\r");
-                } else
-                    writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的第" + citMinerMain.allNodeListFromCutting.indexOf(arrayList) + "条序列" + "压缩链是:" + arrayList.get(0).getNodeNumberArrayList().toString() + "\n" + "\r");
+//                if (arrayList.get(0).getNodeNumberArrayList().size() <= 1) {
+//                    writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的第" + citMinerMain.allNodeListFromCutting.indexOf(arrayList) + "条序列" + "没有符合条件的压缩链" + "\n" + "\r");
+//                } else
+//                    writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的第" + citMinerMain.allNodeListFromCutting.indexOf(arrayList) + "条序列" + "压缩链是:" + arrayList.get(0).getNodeNumberArrayList().toString() + "\n" + "\r");
             }
             citMinerMain.longgestCommonList = citMinerMain.getLongestCommonList(citMinerMain.arrayListsFromCompress, citMinerMain.frequentlyList.get(j));
             citMinerMain.arrayListsFromCompress.clear();
-            writeNodes(fileName, "公共链是" + citMinerMain.longgestCommonList.toString() + "\n");
+            writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的公共链是" + citMinerMain.longgestCommonList.toString() + "\n");
         }
-
         writeNodes(fileName, "\r----------------------------执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 " + "\n" + "\r");
         System.out.println("\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 ");
         //System.out.println("\r该步骤执行耗时 : " + citMinerMain.timeMillis + " 毫秒 ");
@@ -210,6 +209,7 @@ public class CITMinerMain {
 
         //这里，把循环的次数记录到列表中，方便后期压缩用
         for (ArrayList<Integer> arrayList : hashMap.keySet()) {
+            frequentBoolean = false;
             if (frequentlyList.size() != 0) {  //这里面frequentlyList是出现的所有频繁度
                 for (Integer aFrequentlyList : frequentlyList) {
                     if (aFrequentlyList.equals(hashMap.get(arrayList)))
@@ -217,8 +217,9 @@ public class CITMinerMain {
                 }
             }
             if (!frequentBoolean) {
-                if (hashMap.get(arrayList) >= vauleYouDefine)
+                if (hashMap.get(arrayList) >= vauleYouDefine) {
                     frequentlyList.add(hashMap.get(arrayList));
+                }
             }
         }
         return nodes;
@@ -310,14 +311,14 @@ public class CITMinerMain {
         ArrayList<NodeNumber> aNodeNumberArrayList = new ArrayList<NodeNumber>(); //记录被压缩的数据
         for (int i = 0; i < arrayList.size(); i++) {  //这里不用foreach是因为要对arrayList进行删除工作
             if (arrayList.get(i).getTimesOfNodes() >= timesYouDefine) {
+                int num = arrayList.get(i).getNodeNumberArrayList().size(); //把压缩链元素个数存起来
+                //int num = 1; //把压缩链元素个数存起来
                 if (whetherAddHead) {
                     aNodeNumberArrayList.addAll(arrayList.get(i).getNodeHead().getNodeNumberArrayList()); //只能添加一次 添加头的信息 每次压缩形成压缩链只有一个头结点 和树没有关系了 已经形成单独的链了
                     whetherAddHead = false;
                 }
                 for (Node broNode : getBrotherNodes(arrayList.get(i))) {
-                    //broNode.addWeightOfNodes();  //如果大于自定义的阀值，兄弟节点+1 这里默认加1 因为设定的都是1
-                    //broNode.getNodeNumberArrayList().set(0, new NodeNumber(broNode.getNodenumber(), broNode.getWeightOfNodes()));
-                    broNode.addWeightOfNodesInNodeNumberArrayList();//解决了节点链有兄弟的情况
+                    broNode.addWeightOfNodesInNodeNumberArrayList(num);//解决了节点链有兄弟的情况 //不能都加1啊大哥！！！！！！！！！要修改成个数
                 }
                 for (Node childNode : arrayList.get(i).getArrayListNodeTail()) {
                     arrayList.get(i).getNodeHead().addNodeTail(childNode);  ////添加尾节点
@@ -330,7 +331,8 @@ public class CITMinerMain {
                 i--;
             }
         }
-        arrayListsFromCompress.add(aNodeNumberArrayList); //这里添加压缩的链 就是在这次压缩过程中压缩的链
+        if (aNodeNumberArrayList.size() != 0)
+            arrayListsFromCompress.add(aNodeNumberArrayList); //这里添加压缩的链 就是在这次压缩过程中压缩的链
         return arrayList;
     }
 
@@ -389,7 +391,7 @@ public class CITMinerMain {
 
 
     /**
-     * 把压缩链变成一个链表 里面放着所有的边
+     * 把压缩链变成一个链表 里面放着所有的边  //得到的压缩链不对！！！！
      *
      * @param arrayListNodeNumber 需要处理的压缩链
      * @return 一个存着所有边的链表
@@ -399,7 +401,8 @@ public class CITMinerMain {
         ArrayList<NodeBranch> aNodeBranches = new ArrayList<NodeBranch>();
         for (ArrayList<NodeNumber> anArrayListNodeNumber : arrayListNodeNumber) {
             for (int j = 1; j < anArrayListNodeNumber.size(); j++) {
-                aNodeBranches.add(new NodeBranch(Integer.valueOf(anArrayListNodeNumber.get(Math.abs(j - anArrayListNodeNumber.get(j).getWeightOfNodes())).getNodenumber()), Integer.valueOf(anArrayListNodeNumber.get(j).getNodenumber())));
+                if ((Math.abs(j - anArrayListNodeNumber.get(j).getWeightOfNodes()) < anArrayListNodeNumber.size())) //这一句不对呀！！
+                    aNodeBranches.add(new NodeBranch(Integer.valueOf(anArrayListNodeNumber.get(Math.abs(j - anArrayListNodeNumber.get(j).getWeightOfNodes())).getNodenumber()), Integer.valueOf(anArrayListNodeNumber.get(j).getNodenumber())));
             }
             nodeBranches.add((ArrayList<NodeBranch>) aNodeBranches.clone());
             aNodeBranches.clear();

@@ -26,6 +26,10 @@ public class NodeNumber {
         this.weightOfNodes = weightOfNodes;
     }
 
+    public void addWeightOfNodes(int num) {
+        weightOfNodes = weightOfNodes + num;
+    }
+
     @Override
     public String toString() {
         return nodenumber + '\'' + weightOfNodes;
