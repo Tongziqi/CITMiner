@@ -43,24 +43,19 @@ public class CITMinerMain {
         for (int i = 0; i < nodes.length; i++) {
             ArrayList<Node> arrayListHeadNodes = citMinerMain.getHeadTailFromCutting(nodes[i], vauleYouDefine);
             if (arrayListHeadNodes.size() >= 1) {
-
                 ArrayList<Node> arrayList = citMinerMain.getNewTreeFromCutting(arrayListHeadNodes, vauleYouDefine).get(0); //这里改了就行 以后把这里改成迭代的形式，获得所有的arraylist不只get(0)
                 citMinerMain.allNodeListFromCutting.add(arrayList); //把结果添加进去
-
-                writeNodes(fileName, "剪切后第" + i + "的序列是:" + arrayList.toString() + "\n");
-            } else
-                writeNodes(fileName, "因为设置的阀值过大,第" + i + "序列不符合的压缩序列" + "\n");
+                //writeNodes(fileName, "剪切后第" + i + "的序列是:" + arrayList.toString() + "\n");
+            } //else
+            //writeNodes(fileName, "因为设置的阀值过大,第" + i + "序列不符合的压缩序列" + "\n");
         }
         writeNodes(fileName, "---------------------------------------------------------------------------------------------" + "\n");
         //开始进行压缩,具体压缩的阀值由出现的最大频率来决定
         for (int j = 0; j < citMinerMain.frequentlyList.size(); j++) {
             for (ArrayList<Node> arrayList : citMinerMain.allNodeListFromCutting) {
                 citMinerMain.compressTreetest(arrayList, citMinerMain.frequentlyList.get(j));
-//                if (arrayList.get(0).getNodeNumberArrayList().size() <= 1) {
-//                    writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的第" + citMinerMain.allNodeListFromCutting.indexOf(arrayList) + "条序列" + "没有符合条件的压缩链" + "\n" + "\r");
-//                } else
-//                    writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的第" + citMinerMain.allNodeListFromCutting.indexOf(arrayList) + "条序列" + "压缩链是:" + arrayList.get(0).getNodeNumberArrayList().toString() + "\n" + "\r");
             }
+            writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的压缩链是:" + citMinerMain.arrayListsFromCompress + "\n" + "\r");
             citMinerMain.longgestCommonList = citMinerMain.getLongestCommonList(citMinerMain.arrayListsFromCompress, citMinerMain.frequentlyList.get(j));
             citMinerMain.arrayListsFromCompress.clear();
             writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的公共链是" + citMinerMain.longgestCommonList.toString() + "\n");
@@ -109,6 +104,7 @@ public class CITMinerMain {
 
     /**
      * 把文件里面的数字组成一个二维Node链表
+     * Node包含它的头结点和它的一堆尾节点
      *
      * @param nodesFronText 表示从文件里面读取的数值
      * @return 一个带头结点和尾节点的二维Node链表
@@ -169,6 +165,7 @@ public class CITMinerMain {
 
     /**
      * 构建一颗压缩树，即添加权重和出现的次数
+     * 这里面读取了数据两次 第一次统计边的频繁度，第二次更新压缩树的边频繁度值
      *
      * @param nodes 原始树
      * @return 带权重和次数的树
@@ -401,8 +398,8 @@ public class CITMinerMain {
         ArrayList<NodeBranch> aNodeBranches = new ArrayList<NodeBranch>();
         for (ArrayList<NodeNumber> anArrayListNodeNumber : arrayListNodeNumber) {
             for (int j = 1; j < anArrayListNodeNumber.size(); j++) {
-                if ((Math.abs(j - anArrayListNodeNumber.get(j).getWeightOfNodes()) < anArrayListNodeNumber.size())) //这一句不对呀！！
-                    aNodeBranches.add(new NodeBranch(Integer.valueOf(anArrayListNodeNumber.get(Math.abs(j - anArrayListNodeNumber.get(j).getWeightOfNodes())).getNodenumber()), Integer.valueOf(anArrayListNodeNumber.get(j).getNodenumber())));
+                //if ((Math.abs(j - anArrayListNodeNumber.get(j).getWeightOfNodes()) < anArrayListNodeNumber.size())) //这一句不对呀！！
+                aNodeBranches.add(new NodeBranch(Integer.valueOf(anArrayListNodeNumber.get(Math.abs(j - anArrayListNodeNumber.get(j).getWeightOfNodes())).getNodenumber()), Integer.valueOf(anArrayListNodeNumber.get(j).getNodenumber())));
             }
             nodeBranches.add((ArrayList<NodeBranch>) aNodeBranches.clone());
             aNodeBranches.clear();

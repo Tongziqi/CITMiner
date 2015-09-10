@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact name="CITMiner:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/CITMiner_jar</output-path>
+    <root id="root">
+      <element id="archive" name="CITMiner.jar">
+        <element id="module-output" name="CITMiner" />
+      </element>
+    </root>
+  </artifact>
+</component>
