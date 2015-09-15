@@ -16,7 +16,7 @@ import java.util.Iterator;
 public class CITMinerMain {
     protected ArrayList<Node> alistFromCutting = new ArrayList<Node>(); // 这里控制仅仅有一NodeList,便于添加数据
     private ArrayList<Integer> frequentlyList = new ArrayList<Integer>();  //这里记录所有出现的频繁度，只压缩出现的频繁度
-    private ArrayList<ArrayList<Node>> allNodeListFromCutting = new ArrayList<ArrayList<Node>>(); //把所有剪切后的树记录下来,用来压缩用
+    private ArrayList<ArrayList<Node>> allNodeListFromCutting = new ArrayList<ArrayList<Node>>(); //把所有剪切后的树记录下来,用来压缩用 里面记录了出现的频率和次数
     private ArrayList<ArrayList<NodeNumber>> arrayListsFromCompress = new ArrayList<ArrayList<NodeNumber>>(); //记录每一次的压缩的压缩链
     private ArrayList<NodeBranch> longgestCommonList = new ArrayList<NodeBranch>();//存储着最长公共链
     private static int vauleYouDefine = 2;
@@ -40,14 +40,15 @@ public class CITMinerMain {
         //为什么修改过后算法变得那么慢？因为原来是剪切一条链后，就对其进行压缩，一次迭代压缩完所有的频繁度，而且只写入文档最后结果
         //时间的差异大都在写入文档
         //但是现在为了闭合化，需要压缩一个频繁度的所有所有链，找出公共部分，即为频繁子树，所以需要记录每一个频繁度的所有压缩链，就不能安装原来的算法了，需要同时压缩，还要记录中间值。
+
+        ////修改 2015年9月15日 21:55:26 这里面算法有问题 为什么呢 因为这里进行了很多重复工作，频繁度为2的公共链一定程度上包含了频繁度为f(f>2)的公共链,每计算一个新的公共链，都要全部比较一次
+        ////看看能不能用上上次的结果 但是f=2的公共链也不一定包含f=3的公共链(不一定么？)
         for (int i = 0; i < nodes.length; i++) {
             ArrayList<Node> arrayListHeadNodes = citMinerMain.getHeadTailFromCutting(nodes[i], vauleYouDefine);
             if (arrayListHeadNodes.size() >= 1) {
                 ArrayList<Node> arrayList = citMinerMain.getNewTreeFromCutting(arrayListHeadNodes, vauleYouDefine).get(0); //这里改了就行 以后把这里改成迭代的形式，获得所有的arraylist不只get(0)
                 citMinerMain.allNodeListFromCutting.add(arrayList); //把结果添加进去
-                //writeNodes(fileName, "剪切后第" + i + "的序列是:" + arrayList.toString() + "\n");
-            } //else
-            //writeNodes(fileName, "因为设置的阀值过大,第" + i + "序列不符合的压缩序列" + "\n");
+            }
         }
         writeNodes(fileName, "---------------------------------------------------------------------------------------------" + "\n");
         //开始进行压缩,具体压缩的阀值由出现的最大频率来决定
@@ -56,6 +57,7 @@ public class CITMinerMain {
                 citMinerMain.compressTreetest(arrayList, citMinerMain.frequentlyList.get(j));
             }
             writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的压缩链是:" + citMinerMain.arrayListsFromCompress + "\n" + "\r");
+
             citMinerMain.longgestCommonList = citMinerMain.getLongestCommonList(citMinerMain.arrayListsFromCompress, citMinerMain.frequentlyList.get(j));
             citMinerMain.arrayListsFromCompress.clear();
             writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的公共链是" + citMinerMain.longgestCommonList.toString() + "\n");
@@ -181,7 +183,7 @@ public class CITMinerMain {
                     ArrayList<Integer> arrayListKey = new ArrayList<Integer>();
                     arrayListKey.add(Integer.valueOf(node[j].getNodenumber()));
                     arrayListKey.add(Integer.valueOf(node[j].getNodeHead().getNodenumber()));
-                    if (hashMap.containsKey(arrayListKey)) {
+                    if (hashMap.containsKey(arrayListKey)) {  //如果已经出现过一次 那么就把频繁度+1
                         hashMap.replace(arrayListKey, hashMap.get(arrayListKey) + 1);
                     } else hashMap.put(arrayListKey, defaultValue);
                 }
@@ -235,14 +237,14 @@ public class CITMinerMain {
 
         ArrayList<Node> nodesList = new ArrayList<Node>();
 
-        for (int i = 0; i < nodes.length; i++) {
-            if (!nodes[i].getNodenumber().equals("-1")) {
-                if (nodes[i].getTimesOfNodes() < timesYouDefine) {
-                    if (nodes[i].getArrayListNodeTail().size() >= 1) {
-                        Iterator iter = nodes[i].getArrayListNodeTail().iterator();
+        for (Node node : nodes) {
+            if (!node.getNodenumber().equals("-1")) {
+                if (node.getTimesOfNodes() < timesYouDefine) {
+                    if (node.getArrayListNodeTail().size() >= 1) {
+                        Iterator iter = node.getArrayListNodeTail().iterator();
                         while (iter.hasNext()) {
                             if (((Node) iter.next()).getTimesOfNodes() >= timesYouDefine) {
-                                nodesList.add(nodes[i]);
+                                nodesList.add(node);
                                 break;
                             }
                         }
@@ -257,7 +259,7 @@ public class CITMinerMain {
      * 找到压缩后的子树
      *
      * @param arrayList 传入getHeadTailFromCutting返回的节点
-     * @return 一颗ArrayList<ArrayList<Node>>,里面可以存放很多颗树，一般只返回一棵树
+     * @return 一颗ArrayList<ArrayList<Node>> 剪切过后的所有点
      */
     public ArrayList<ArrayList<Node>> getNewTreeFromCutting(ArrayList<Node> arrayList, int timesYouDefine) {
 
@@ -290,7 +292,7 @@ public class CITMinerMain {
 
             } else {
                 node.getArrayListNodeTail().get(i).getNodeHead().delNodeTail(node.getArrayListNodeTail().get(i));
-                i--;
+                i--;//这里面为什么-1，因为这里面删了一个节点，下一步还有i++, 才能继续从开始节点开始判断（这时候开始节点已经改变了）
             }
         }
     }
@@ -308,8 +310,7 @@ public class CITMinerMain {
         ArrayList<NodeNumber> aNodeNumberArrayList = new ArrayList<NodeNumber>(); //记录被压缩的数据
         for (int i = 0; i < arrayList.size(); i++) {  //这里不用foreach是因为要对arrayList进行删除工作
             if (arrayList.get(i).getTimesOfNodes() >= timesYouDefine) {
-                int num = arrayList.get(i).getNodeNumberArrayList().size(); //把压缩链元素个数存起来
-                //int num = 1; //把压缩链元素个数存起来
+                int num = arrayList.get(i).getNodeNumberArrayList().size(); //把压缩链元素个数存起来(有几个压缩链)
                 if (whetherAddHead) {
                     aNodeNumberArrayList.addAll(arrayList.get(i).getNodeHead().getNodeNumberArrayList()); //只能添加一次 添加头的信息 每次压缩形成压缩链只有一个头结点 和树没有关系了 已经形成单独的链了
                     whetherAddHead = false;
@@ -321,7 +322,7 @@ public class CITMinerMain {
                     arrayList.get(i).getNodeHead().addNodeTail(childNode);  ////添加尾节点
                     childNode.setNodeHead(arrayList.get(i).getNodeHead()); //同时添加父节点
                 }
-                arrayList.get(i).getNodeHead().addNodeNumberandtimeList(arrayList.get(i).getNodeNumberArrayList());
+                arrayList.get(i).getNodeHead().addNodeNumberandtimeList(arrayList.get(i).getNodeNumberArrayList()); //改变里面存的值
                 aNodeNumberArrayList.addAll(arrayList.get(i).getNodeNumberArrayList()); //这里面记录被压缩的数据
                 arrayList.get(i).getNodeHead().delNodeTail(arrayList.get(i));//删除该节点与父节点的关系
                 arrayList.remove(arrayList.get(i));
@@ -359,28 +360,45 @@ public class CITMinerMain {
      * @return 最大的公共链
      */
     public ArrayList<NodeBranch> getLongestCommonList(ArrayList<ArrayList<NodeNumber>> arrayLists, int timesYouDinfine) {
+        int numberOfMinSize = 0;//有几个最短链
         ArrayList<NodeNumber> longestCommonList;
         ArrayList<NodeBranch> lastLongestCommonList = new ArrayList<NodeBranch>();
-        ArrayList<ArrayList<NodeNumber>> newArrayLists = (ArrayList<ArrayList<NodeNumber>>) arrayLists.clone();
+        ArrayList<ArrayList<NodeNumber>> newArrayLists = (ArrayList<ArrayList<NodeNumber>>) arrayLists.clone();//这里面复制下arrayLists 用作排序用
         Collections.sort(newArrayLists, new SortByNodeNumberSize());
-        longestCommonList = newArrayLists.get(0);//这里得到最短的压缩链
-        int longest = arrayLists.indexOf(longestCommonList);
-        ArrayList<ArrayList<NodeBranch>> allnodeBranches = getNodeBranchFromNodeNumber(arrayLists);
-        ArrayList<NodeBranch> longestNodeBranches = allnodeBranches.get(longest);  //这里找出最短的压缩链
+        longestCommonList = newArrayLists.get(0);//这里得到最短的压缩链(但是存在其他的情况,比如前两个链都是最短的)
 
-        //接下来需要判断最短的压缩链在其他压缩链中有没有出现
-        for (NodeBranch longestnodeBranch : longestNodeBranches) {
-            for (ArrayList<NodeBranch> arrayList : allnodeBranches) {
-                for (NodeBranch allnodeBranch : arrayList) {
-                    if (allnodeBranch.equals(longestnodeBranch)) {
-                        timesYouDinfine = timesYouDinfine - 1;   //这里控制出现的次数 每出现一次就减去1 如果最后是负值或者为0,即满足条件
-                        break;  //但是现在只能得到一条
+        for (ArrayList<NodeNumber> newArrayList : newArrayLists) {
+            if (newArrayList.size() == longestCommonList.size()) {
+                numberOfMinSize++; //如果有一个相等 那么表示只有一个最短链
+            } else {
+                break;
+            }
+        }
+
+        ArrayList<ArrayList<NodeBranch>> allnodeBranches = getNodeBranchFromNodeNumber(arrayLists);
+        int times = timesYouDinfine;
+        for (int i = 0; i < numberOfMinSize; i++) {
+            int longest = arrayLists.indexOf(newArrayLists.get(i));//这里面获得最短压缩链的位置
+            ArrayList<NodeBranch> longestNodeBranches = allnodeBranches.get(longest);  //这里找出最短的压缩链
+            for (NodeBranch longestnodeBranch : longestNodeBranches) {
+                for (ArrayList<NodeBranch> arrayList : allnodeBranches) {
+                    for (NodeBranch allnodeBranch : arrayList) {
+                        if (allnodeBranch.equals(longestnodeBranch)) {
+                            times = times - 1;   //这里控制出现的次数 每出现一次就减去1 如果最后是负值或者为0,即满足条件
+                            break;  //但是现在只能得到一条
+                        }
                     }
                 }
+                if (times <= 0)
+                    lastLongestCommonList.add(longestnodeBranch); //如果满足条件 那么添加进去
             }
-            if (timesYouDinfine <= 0)
-                lastLongestCommonList.add(longestnodeBranch);
         }
+
+        //int longest = arrayLists.indexOf(longestCommonList);//这里面获得最短压缩链的位置
+        //ArrayList<ArrayList<NodeBranch>> allnodeBranches = getNodeBranchFromNodeNumber(arrayLists);
+        //ArrayList<NodeBranch> longestNodeBranches = allnodeBranches.get(longest);  //这里找出最短的压缩链
+
+        //接下来需要判断最短的压缩链在其他压缩链中有没有出现
 
 
         return lastLongestCommonList;
@@ -388,7 +406,7 @@ public class CITMinerMain {
 
 
     /**
-     * 把压缩链变成一个链表 里面放着所有的边  //得到的压缩链不对！！！！
+     * 把压缩链变成一个链表 里面放着所有的边
      *
      * @param arrayListNodeNumber 需要处理的压缩链
      * @return 一个存着所有边的链表
@@ -398,7 +416,6 @@ public class CITMinerMain {
         ArrayList<NodeBranch> aNodeBranches = new ArrayList<NodeBranch>();
         for (ArrayList<NodeNumber> anArrayListNodeNumber : arrayListNodeNumber) {
             for (int j = 1; j < anArrayListNodeNumber.size(); j++) {
-                //if ((Math.abs(j - anArrayListNodeNumber.get(j).getWeightOfNodes()) < anArrayListNodeNumber.size())) //这一句不对呀！！
                 aNodeBranches.add(new NodeBranch(Integer.valueOf(anArrayListNodeNumber.get(Math.abs(j - anArrayListNodeNumber.get(j).getWeightOfNodes())).getNodenumber()), Integer.valueOf(anArrayListNodeNumber.get(j).getNodenumber())));
             }
             nodeBranches.add((ArrayList<NodeBranch>) aNodeBranches.clone());
