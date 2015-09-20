@@ -18,7 +18,7 @@ public class CITMinerMain {
     private ArrayList<Integer> frequentlyList = new ArrayList<Integer>();  //这里记录所有出现的频繁度，只压缩出现的频繁度
     private ArrayList<ArrayList<Node>> allNodeListFromCutting = new ArrayList<ArrayList<Node>>(); //把所有剪切后的树记录下来,用来压缩用 里面记录了出现的频率和次数
     private ArrayList<ArrayList<NodeNumber>> arrayListsFromCompress = new ArrayList<ArrayList<NodeNumber>>(); //记录每一次的压缩的压缩链
-    private ArrayList<NodeBranch> longgestCommonList = new ArrayList<NodeBranch>();//存储着最长公共链
+    private ArrayList<ArrayList<NodeBranch>> allLonggestCommonList = new ArrayList<ArrayList<NodeBranch>>();//存储着最长公共链
     private static int vauleYouDefine = 2;
 
 
@@ -58,9 +58,9 @@ public class CITMinerMain {
             }
             writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的压缩链是:" + citMinerMain.arrayListsFromCompress + "\n" + "\r");
 
-            citMinerMain.longgestCommonList = citMinerMain.getLongestCommonList(citMinerMain.arrayListsFromCompress, citMinerMain.frequentlyList.get(j));
+            citMinerMain.allLonggestCommonList = citMinerMain.getLongestCommonList(citMinerMain.arrayListsFromCompress, citMinerMain.frequentlyList.get(j));
             citMinerMain.arrayListsFromCompress.clear();
-            writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的公共链是" + citMinerMain.longgestCommonList.toString() + "\n");
+            writeNodes(fileName, "阀值为" + citMinerMain.frequentlyList.get(j) + "的公共链是" + citMinerMain.allLonggestCommonList.toString() + "\n");
         }
         writeNodes(fileName, "\r----------------------------执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 " + "\n" + "\r");
         System.out.println("\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 ");
@@ -359,10 +359,11 @@ public class CITMinerMain {
      * @param timesYouDinfine 压缩的阀值
      * @return 最大的公共链
      */
-    public ArrayList<NodeBranch> getLongestCommonList(ArrayList<ArrayList<NodeNumber>> arrayLists, int timesYouDinfine) {
+    public ArrayList<ArrayList<NodeBranch>> getLongestCommonList(ArrayList<ArrayList<NodeNumber>> arrayLists, int timesYouDinfine) {
         int numberOfMinSize = 0;//有几个最短链
         ArrayList<NodeNumber> longestCommonList;
         ArrayList<NodeBranch> lastLongestCommonList = new ArrayList<NodeBranch>();
+        ArrayList<ArrayList<NodeBranch>> allLastLongestCommonList = new ArrayList<ArrayList<NodeBranch>>(); //记录所有的公共链
         ArrayList<ArrayList<NodeNumber>> newArrayLists = (ArrayList<ArrayList<NodeNumber>>) arrayLists.clone();//这里面复制下arrayLists 用作排序用
         Collections.sort(newArrayLists, new SortByNodeNumberSize());
         longestCommonList = newArrayLists.get(0);//这里得到最短的压缩链(但是存在其他的情况,比如前两个链都是最短的)
@@ -377,9 +378,11 @@ public class CITMinerMain {
 
         ArrayList<ArrayList<NodeBranch>> allnodeBranches = getNodeBranchFromNodeNumber(arrayLists);
         int times = timesYouDinfine;
+
         for (int i = 0; i < numberOfMinSize; i++) {
             int longest = arrayLists.indexOf(newArrayLists.get(i));//这里面获得最短压缩链的位置
             ArrayList<NodeBranch> longestNodeBranches = allnodeBranches.get(longest);  //这里找出最短的压缩链
+
             for (NodeBranch longestnodeBranch : longestNodeBranches) {
                 for (ArrayList<NodeBranch> arrayList : allnodeBranches) {
                     for (NodeBranch allnodeBranch : arrayList) {
@@ -389,19 +392,14 @@ public class CITMinerMain {
                         }
                     }
                 }
-                if (times <= 0)
+                if (times <= 0) {
                     lastLongestCommonList.add(longestnodeBranch); //如果满足条件 那么添加进去
+                }
             }
+            allLastLongestCommonList.add((ArrayList<NodeBranch>) lastLongestCommonList.clone());
+            lastLongestCommonList.clear();
         }
-
-        //int longest = arrayLists.indexOf(longestCommonList);//这里面获得最短压缩链的位置
-        //ArrayList<ArrayList<NodeBranch>> allnodeBranches = getNodeBranchFromNodeNumber(arrayLists);
-        //ArrayList<NodeBranch> longestNodeBranches = allnodeBranches.get(longest);  //这里找出最短的压缩链
-
-        //接下来需要判断最短的压缩链在其他压缩链中有没有出现
-
-
-        return lastLongestCommonList;
+        return allLastLongestCommonList;
     }
 
 
