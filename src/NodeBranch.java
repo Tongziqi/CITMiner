@@ -23,22 +23,6 @@ public class NodeBranch {
         return true;
     }
 
-    public int getHeadNode() {
-        return headNode;
-    }
-
-    public void setHeadNode(int headNode) {
-        this.headNode = headNode;
-    }
-
-    public int getTailNode() {
-        return tailNode;
-    }
-
-    public void setTailNode(int tailNode) {
-        this.tailNode = tailNode;
-    }
-
     @Override
     public String toString() {
         return headNode + "," + tailNode;
