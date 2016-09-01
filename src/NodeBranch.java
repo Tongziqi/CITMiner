@@ -18,9 +18,8 @@ public class NodeBranch {
         NodeBranch that = (NodeBranch) o;
 
         if (headNode != that.headNode) return false;
-        if (tailNode != that.tailNode) return false;
+        return tailNode == that.tailNode;
 
-        return true;
     }
 
     @Override
