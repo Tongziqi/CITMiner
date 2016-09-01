@@ -7,6 +7,7 @@ import java.nio.channels.FileChannel;
 
 /**
  * Created by tongxiaotuo on 16/9/1.
+ * 工具类 包括文件读取等等
  */
 public class Tools {
     /**
@@ -56,9 +57,11 @@ public class Tools {
 
         String lineNumbersOfArray[] = nodesFronText.split("\n");
         int arrayListnumbers = lineNumbersOfArray.length;
+
         Node nodesList[][] = new Node[arrayListnumbers][];  //控制行数
 
         for (int i = 0; i < arrayListnumbers; i++) {
+
             String numbersList[] = lineNumbersOfArray[i].split(" |\r");  //一行有几个数
             nodesList[i] = new Node[numbersList.length - 3]; //每行去掉前三个数
 

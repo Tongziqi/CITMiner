@@ -1,5 +1,6 @@
 /**
  * Created by Administrator on 2015/7/28 0028.
+ * Node节点组成的边
  */
 public class NodeBranch {
     public int headNode;
@@ -17,8 +18,7 @@ public class NodeBranch {
 
         NodeBranch that = (NodeBranch) o;
 
-        if (headNode != that.headNode) return false;
-        return tailNode == that.tailNode;
+        return headNode == that.headNode && tailNode == that.tailNode;
 
     }
 

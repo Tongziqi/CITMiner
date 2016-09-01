@@ -2,16 +2,10 @@ import java.util.ArrayList;
 
 /**
  * Created by tongxiaotuo on 16/9/1.
+ * 对树进行压缩
+ * 这里面会遍历一遍所有的数据
  */
 public class CompressTree {
-    /**
-     * 对树进行压缩
-     * 这里面会遍历一遍所有的数据
-     *
-     * @param arrayList      剪切后的树
-     * @param timesYouDefine 定义压缩的阀值
-     * @return 应该返回一个字符串 字符串里面包含压缩过的数据
-     */
     public static ArrayList<Node> compressTreetest(ArrayList<Node> arrayList, int timesYouDefine, ArrayList<ArrayList<NodeNumber>> arrayListsFromCompress) {
         boolean whetherAddHead = true;
         ArrayList<NodeNumber> aNodeNumberArrayList = new ArrayList<NodeNumber>(); //记录被压缩的数据

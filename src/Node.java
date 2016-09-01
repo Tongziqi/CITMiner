@@ -2,6 +2,7 @@ import java.util.ArrayList;
 
 /**
  * Created by Administrator on 2015/6/21 0021.
+ * Node的数据结构
  */
 public class Node {
     public ArrayList<NodeNumber> nodeNumberArrayList;
@@ -9,9 +10,12 @@ public class Node {
     public String nodenumber;  //节点的数值
     public int timesOfNodes; //出现的次数
     public int weightOfNodes; //节点的权重
+    public ArrayList<Node> arrayListNodeTail = new ArrayList<Node>(); //孩子们
 
-    public void addNodeNumberandtime(NodeNumber nodeNumberandtime) {
-        nodeNumberArrayList.add(nodeNumberandtime);
+    public Node(String nodenumber) {
+
+        this.nodenumber = nodenumber;
+        nodeNumberArrayList = new ArrayList<NodeNumber>();
     }
 
     public void addNodeNumberandtimeList(ArrayList<NodeNumber> list) {
@@ -31,9 +35,6 @@ public class Node {
             aNodeNumber.addWeightOfNodes(num);
         }
     }
-
-    public ArrayList<Node> arrayListNodeTail = new ArrayList<Node>();
-
 
     public ArrayList<Node> getArrayListNodeTail() {
         return arrayListNodeTail;
@@ -69,28 +70,15 @@ public class Node {
         this.weightOfNodes = weightOfNodes;
     }
 
-
     public Node getNodeHead() {
         return nodeHead;
-    }
-
-
-    public Node(String nodenumber) {
-
-        this.nodenumber = nodenumber;
-        nodeNumberArrayList = new ArrayList<NodeNumber>();
     }
 
     public void setNodeHead(Node nodeHead) {
         this.nodeHead = nodeHead;
     }
 
-
     public String getNodenumber() {
         return nodenumber;
-    }
-
-    public void setNodenumber(String nodenumber) {
-        this.nodenumber = nodenumber;
     }
 }

@@ -1,5 +1,6 @@
 /**
  * Created by Administrator on 2015/7/6 0006.
+ * Node节点上的number
  */
 public class NodeNumber {
     public String nodenumber;
@@ -14,17 +15,11 @@ public class NodeNumber {
         return nodenumber;
     }
 
-    public void setNodenumber(String nodenumber) {
-        this.nodenumber = nodenumber;
-    }
 
     public int getWeightOfNodes() {
         return weightOfNodes;
     }
 
-    public void setWeightOfNodes(int weightOfNodes) {
-        this.weightOfNodes = weightOfNodes;
-    }
 
     public void addWeightOfNodes(int num) {
         weightOfNodes = weightOfNodes + num;

@@ -3,6 +3,7 @@ import java.util.Iterator;
 
 /**
  * Created by tongxiaotuo on 16/9/1.
+ * 剪切树
  */
 public class Cutting {
 
@@ -40,7 +41,7 @@ public class Cutting {
      * 找到压缩后的子树
      *
      * @param arrayList 传入getHeadTailFromCutting返回的节点
-     * @return 一颗ArrayList<ArrayList<Node>> 剪切过后的所有点
+     * @return 剪切过后的所有点
      */
     public static ArrayList<ArrayList<Node>> getNewTreeFromCutting(ArrayList<Node> arrayList, int timesYouDefine, ArrayList<Node> alistFromCutting) {
 

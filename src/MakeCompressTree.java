@@ -3,18 +3,13 @@ import java.util.HashMap;
 
 /**
  * Created by tongxiaotuo on 16/9/1.
+ * 构建一颗压缩树，即添加权重和出现的次数
+ * 这里面读取了数据两次 第一次统计边的频繁度，第二次更新压缩树的边频繁度值
  */
 public class MakeCompressTree {
-    /**
-     * 构建一颗压缩树，即添加权重和出现的次数
-     * 这里面读取了数据两次 第一次统计边的频繁度，第二次更新压缩树的边频繁度值
-     *
-     * @param nodes 原始树
-     * @return 带权重和次数的树
-     */
     public static Node[][] makeCompressTree(final Node[][] nodes, ArrayList<Integer> frequentlyList, int vauleYouDefine) {
         int defaultValue = 1;
-        Boolean frequentBoolean = false;
+        Boolean frequentBoolean;
         HashMap<ArrayList<Integer>, Integer> hashMap = new HashMap<ArrayList<Integer>, Integer>();
         //第一次循环 找出所有的频繁次数
         for (Node[] node : nodes) {
