@@ -7,7 +7,8 @@ import java.util.HashMap;
  * 这里面读取了数据两次 第一次统计边的频繁度，第二次更新压缩树的边频繁度值
  */
 public class MakeCompressTree {
-    public static Node[][] makeCompressTree(final Node[][] nodes, ArrayList<Integer> frequentlyList, int vauleYouDefine) {
+    public static Node[] makeCompressTree(final Node[][] nodes, ArrayList<Integer> frequentlyList, int vauleYouDefine) {
+        Node[] resultNodeList = new Node[nodes.length];
         int defaultValue = 1;
         Boolean frequentBoolean;
         HashMap<ArrayList<Integer>, Integer> hashMap = new HashMap<ArrayList<Integer>, Integer>();
@@ -56,7 +57,12 @@ public class MakeCompressTree {
                 }
             }
         }
-        return nodes;
+
+        for (int i = 0; i < nodes.length; i++) {
+            resultNodeList[i] = nodes[i][0];
+        }
+        return resultNodeList;
+        //return nodes;
 
     }
 }

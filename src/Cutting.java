@@ -7,6 +7,7 @@ import java.util.Iterator;
  */
 public class Cutting {
 
+    //问题就出在这里面了!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     /**
      * 找出所有压缩后可以构建树的节点
      * 至里面仅仅遍历了一遍数据即可完成删边和清理工作，比论文的简单.
@@ -40,11 +41,10 @@ public class Cutting {
     /**
      * 找到压缩后的子树
      *
-     * @param arrayList 传入getHeadTailFromCutting返回的节点
      * @return 剪切过后的所有点
      */
-    public static ArrayList<ArrayList<Node>> getNewTreeFromCutting(ArrayList<Node> arrayList, int timesYouDefine, ArrayList<Node> alistFromCutting) {
-
+    public static ArrayList<ArrayList<Node>> getNewTreeFromCutting(Node[] nodes, int timesYouDefine, ArrayList<Node> alistFromCutting) {
+        ArrayList<Node> arrayList = getHeadTailFromCutting(nodes, timesYouDefine);
         ArrayList<ArrayList<Node>> nodesList = new ArrayList<ArrayList<Node>>();
         for (Node aNode : arrayList) {
             addNodeFromTree(aNode, timesYouDefine, alistFromCutting);

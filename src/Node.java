@@ -50,6 +50,10 @@ public class Node {
         arrayListNodeTail.add(nodeTail);
     }
 
+    public void addNodeTailInPosition(Node nodeTail, int position) {
+        arrayListNodeTail.add(position, nodeTail);
+    }
+
     public void delNodeTail(Node nodeTail) {
         arrayListNodeTail.remove(nodeTail);
     }

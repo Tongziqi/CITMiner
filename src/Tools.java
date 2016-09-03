@@ -18,7 +18,7 @@ public class Tools {
      * @throws IOException 抛出异常
      */
 
-    public static String getNodes(File filePath) throws IOException {
+    public static String readInString(File filePath) throws IOException {
         FileInputStream in = new FileInputStream(filePath);
         FileChannel chan = in.getChannel();
         MappedByteBuffer buf = chan.map(FileChannel.MapMode.READ_ONLY, 0, filePath.length());
@@ -33,7 +33,7 @@ public class Tools {
         return new String(b, 0, len, "GBK");
     }
 
-    public static void writeNodes(String fileName, String content) {
+    public static void writeInString(String fileName, String content) {
         try {
             //打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
             FileWriter writer = new FileWriter(fileName, true);
@@ -48,10 +48,11 @@ public class Tools {
      * 把文件里面的数字组成一个二维Node链表
      * Node包含它的头结点和它的一堆尾节点
      *
-     * @param nodesFronText 表示从文件里面读取的数值
+     * @param filePath 表示从文件里面读取的数值
      * @return 一个带头结点和尾节点的二维Node链表
      */
-    public static Node[][] getNodesListFromText(String nodesFronText) {
+    public static Node[][] getNodesListFromText(File filePath) throws IOException {
+        String nodesFronText = readInString(filePath);
         Node firstNodeHeadNode = new Node("-2"); //默认第一个结点的头结点为-2
         Node defaultHeadNode = new Node("-3");  //默认头结点为-3
 
@@ -105,5 +106,17 @@ public class Tools {
             }
         }
         return nodesList;
+    }
+
+    /**
+     * 读取node头节点信息
+     *
+     * @param node 头节点
+     */
+    public static void readHeadNode(Node node) {
+        System.out.println("当前节点是:" + node.nodenumber);
+        for (Node n : node.getArrayListNodeTail()) {
+            readHeadNode(n);
+        }
     }
 }
