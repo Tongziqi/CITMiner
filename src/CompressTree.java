@@ -6,36 +6,8 @@ import java.util.ArrayList;
  * 这里面会遍历一遍所有的数据
  */
 public class CompressTree {
-    @Deprecated
-    public static ArrayList<Node> compressTreetest(ArrayList<Node> arrayList, int timesYouDefine, ArrayList<ArrayList<NodeNumber>> arrayListsFromCompress) {
-        boolean whetherAddHead = true;
-        ArrayList<NodeNumber> aNodeNumberArrayList = new ArrayList<NodeNumber>(); //记录被压缩的数据
-        for (int i = 0; i < arrayList.size(); i++) {  //这里不用foreach是因为要对arrayList进行删除工作
-            if (arrayList.get(i).getTimesOfNodes() >= timesYouDefine) {
-                int num = arrayList.get(i).getNodeNumberArrayList().size(); //把压缩链元素个数存起来(有几个压缩链)
-                if (whetherAddHead) {
-                    aNodeNumberArrayList.addAll(arrayList.get(i).getNodeHead().getNodeNumberArrayList()); //只能添加一次 添加头的信息 每次压缩形成压缩链只有一个头结点 和树没有关系了 已经形成单独的链了
-                    whetherAddHead = false;
-                }
-                for (Node broNode : getBrotherNodes(arrayList.get(i))) {
-                    broNode.addWeightOfNodesInNodeNumberArrayList(num);//解决了节点链有兄弟的情况 //不能都加1啊大哥！！！！！！！！！要修改成个数
-                }
-                for (Node childNode : arrayList.get(i).getArrayListNodeTail()) {
-                    arrayList.get(i).getNodeHead().addNodeTail(childNode);  ////添加尾节点
-                    childNode.setNodeHead(arrayList.get(i).getNodeHead()); //同时添加父节点
-                }
-                arrayList.get(i).getNodeHead().addNodeNumberandtimeList(arrayList.get(i).getNodeNumberArrayList()); //改变里面存的值
-                aNodeNumberArrayList.addAll(arrayList.get(i).getNodeNumberArrayList()); //这里面记录被压缩的数据
-                arrayList.get(i).getNodeHead().delNodeTail(arrayList.get(i));//删除该节点与父节点的关系
-                arrayList.remove(arrayList.get(i));
-                i--;
-            }
-        }
-        if (aNodeNumberArrayList.size() != 0)
-            arrayListsFromCompress.add(aNodeNumberArrayList); //这里添加压缩的链 就是在这次压缩过程中压缩的链
-        return arrayList;
-    }
 
+    //能否记录该轮压缩过程中压缩了的节点
     public static ArrayList<NodeNumber> compress(Node node, int timesYouDefine, ArrayList<NodeNumber> arrayListsFromCompress) {
         ArrayList<NodeNumber> aNodeNumberArrayList = new ArrayList<NodeNumber>(); //记录被压缩的数据
         //说明开始压缩
@@ -74,6 +46,7 @@ public class CompressTree {
             arrayListsFromCompress.clear();
             arrayListsFromCompress.addAll(aNodeNumberArrayList);
         }
+
         return arrayListsFromCompress;
     }
 
