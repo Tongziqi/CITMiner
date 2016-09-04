@@ -4,10 +4,13 @@ import java.util.Iterator;
 /**
  * Created by tongxiaotuo on 16/9/1.
  * 剪切树
+ * 弃用
  */
+@Deprecated
 public class Cutting {
 
     //问题就出在这里面了!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     /**
      * 找出所有压缩后可以构建树的节点
      * 至里面仅仅遍历了一遍数据即可完成删边和清理工作，比论文的简单.

@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Collections;
 
+@Deprecated
 public class LongestList {
     /**
      * 获得最大公共链
@@ -16,6 +17,7 @@ public class LongestList {
         ArrayList<ArrayList<NodeBranch>> allLastLongestCommonList = new ArrayList<ArrayList<NodeBranch>>(); //记录所有的公共链
         ArrayList<ArrayList<NodeNumber>> newArrayLists = (ArrayList<ArrayList<NodeNumber>>) arrayLists.clone();//这里面复制下arrayLists 用作排序用
         Collections.sort(newArrayLists, new SortByNodeNumberSize());
+
         longestCommonList = newArrayLists.get(0);//这里得到最短的压缩链(但是存在其他的情况,比如前两个链都是最短的)
 
         for (ArrayList<NodeNumber> newArrayList : newArrayLists) {

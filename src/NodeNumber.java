@@ -1,6 +1,6 @@
 /**
  * Created by Administrator on 2015/7/6 0006.
- * Node节点上的number
+ * Node节点上的number (3,1)(4,1)(5,2)....
  */
 public class NodeNumber {
     public String nodenumber;

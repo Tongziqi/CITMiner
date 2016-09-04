@@ -6,7 +6,8 @@ import java.util.ArrayList;
  * 这里面会遍历一遍所有的数据
  */
 public class CompressTree {
-/*    public static ArrayList<Node> compressTreetest(ArrayList<Node> arrayList, int timesYouDefine, ArrayList<ArrayList<NodeNumber>> arrayListsFromCompress) {
+    @Deprecated
+    public static ArrayList<Node> compressTreetest(ArrayList<Node> arrayList, int timesYouDefine, ArrayList<ArrayList<NodeNumber>> arrayListsFromCompress) {
         boolean whetherAddHead = true;
         ArrayList<NodeNumber> aNodeNumberArrayList = new ArrayList<NodeNumber>(); //记录被压缩的数据
         for (int i = 0; i < arrayList.size(); i++) {  //这里不用foreach是因为要对arrayList进行删除工作
@@ -33,17 +34,13 @@ public class CompressTree {
         if (aNodeNumberArrayList.size() != 0)
             arrayListsFromCompress.add(aNodeNumberArrayList); //这里添加压缩的链 就是在这次压缩过程中压缩的链
         return arrayList;
-    }*/
+    }
 
-    public static void compress(Node node, int timesYouDefine, ArrayList<ArrayList<NodeNumber>> arrayListsFromCompress) {
-        boolean whetherAddHead = true;
+    public static ArrayList<NodeNumber> compress(Node node, int timesYouDefine, ArrayList<NodeNumber> arrayListsFromCompress) {
         ArrayList<NodeNumber> aNodeNumberArrayList = new ArrayList<NodeNumber>(); //记录被压缩的数据
+        //说明开始压缩
         if (node.getTimesOfNodes() == timesYouDefine) {
             int num = node.getNodeNumberArrayList().size(); //压缩链的个数
-            if (whetherAddHead) {
-                aNodeNumberArrayList.addAll(node.getNodeHead().getNodeNumberArrayList()); //只能添加一次 添加头的信息 每次压缩形成压缩链只有一个头结点 和树没有关系了 已经形成单独的链了
-                whetherAddHead = false;
-            }
             for (Node broNode : getBrotherNodes(node)) {
                 broNode.addWeightOfNodesInNodeNumberArrayList(num);//解决了节点链有兄弟的情况
             }
@@ -54,8 +51,8 @@ public class CompressTree {
                 childNode.setNodeHead(node.getNodeHead()); //同时添加父节点
             }
             node.getNodeHead().addNodeNumberandtimeList(node.getNodeNumberArrayList()); //改变里面存的值
-            aNodeNumberArrayList.addAll(node.getNodeNumberArrayList()); //这里面记录被压缩的数据
             node.getNodeHead().delNodeTail(node);//删除该节点与父节点的关系
+            aNodeNumberArrayList = node.getNodeHead().getNodeNumberArrayList();//压缩过后,记录最后压缩的链
         }
         ArrayList<Node> tails = node.getArrayListNodeTail();
         int m, n; //m,n控制变量,比较前后孩子节点个数,是否发生删减的情况
@@ -72,9 +69,12 @@ public class CompressTree {
             //(x) 删除了一个添加了x个 n-m=-1+x=x-1 i=i+x i = i+1+(n-m)
             i = i + 1 + (n - m);
         }
-        if (aNodeNumberArrayList.size() != 0)
-            arrayListsFromCompress.add(aNodeNumberArrayList); //这里添加压缩的链 就是在这次压缩过程中压缩的链
-        // return node;
+        //这个可能存在问题 永远添加的其实是最后一个
+        if (aNodeNumberArrayList.size() != 0) {
+            arrayListsFromCompress.clear();
+            arrayListsFromCompress.addAll(aNodeNumberArrayList);
+        }
+        return arrayListsFromCompress;
     }
 
 
