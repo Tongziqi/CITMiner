@@ -9,31 +9,66 @@ public class CITMinerMain {
 
         ArrayList<Integer> frequentlyList = new ArrayList<Integer>(); //这里记录所有出现的频繁度，只压缩出现的频繁度
         ArrayList<Node> headNode = new ArrayList<Node>();//剪切清理过后得到的头节点
+
+        //当作参数传入compress方法中,记录压缩链和压缩点点
         ArrayList<NodeNumber> arrayListsFromCompress = new ArrayList<NodeNumber>(); //记录每一次的压缩的压缩链
-        ArrayList<ArrayList<NodeNumber>> allArrayListsFromCompress = new ArrayList<ArrayList<NodeNumber>>();//存储所有的压缩链
-        //ArrayList<ArrayList<NodeBranch>> allLonggestCommonList;//存储着最长公共链
+        ArrayList<Node> nodeArrayList = new ArrayList<Node>();//记录每一次的压缩的压缩点
+
+        //记录所有的压缩链和所有压缩的压缩点
+        ArrayList<ArrayList<NodeNumber>> allArrayListsFromCompress = new ArrayList<ArrayList<NodeNumber>>();
+        ArrayList<ArrayList<Node>> allArrayNodeFromCompress = new ArrayList<ArrayList<Node>>();
+
+        //相关参数
         ArrayList<NodeBranch> list; //存储着最长公共链
         long timeMillis = System.currentTimeMillis();  // 记录系统开始的时间
-        Node[] nodes = MakeCompressTree.makeCompressTree(Tools.getNodesListFromText(new File(DefaultSetting.inputFileName)), frequentlyList, DefaultSetting.vauleYouDefine);
 
+        //算法的步骤,剪切 清理 压缩 序列化
+        Node[] nodes = MakeCompressTree.makeCompressTree(Tools.getNodesListFromText(new File(DefaultSetting.inputFileName)), frequentlyList, DefaultSetting.vauleYouDefine);
         CuttingTree.getAllTreeFromCutting(nodes, headNode);//剪切
         CuttingTree.cleanTree(headNode);//清理
         Collections.sort(frequentlyList);
         Collections.reverse(frequentlyList);
 
         for (int frequentNum : frequentlyList) {
+            //frequentNum == 1046会出现问题 压缩链不能转换成边的结构了
             for (Node node : headNode) {
-                allArrayListsFromCompress.add((ArrayList<NodeNumber>) CompressTree.compress(node, frequentNum, arrayListsFromCompress).clone());
+                //得到频繁度为frequentNum的brunchAndList,brunchAndList里面存放了该轮压缩的边和链
+                NodeAndList nodeAndList = CompressTree.compress(node, frequentNum, arrayListsFromCompress, nodeArrayList);
+                if (!nodeAndList.isEmpty()) {
+                    allArrayListsFromCompress.add((ArrayList<NodeNumber>) nodeAndList.getNodeNumberArrayList().clone());
+                    allArrayNodeFromCompress.add((ArrayList<Node>) nodeAndList.getNodeArrayList().clone());
+                }
+                //清空信息 下一次循环用
+                nodeArrayList.clear();
                 arrayListsFromCompress.clear();
             }
-            //每一步压缩过后,这里已经得到压缩链,还需要信息(这轮压缩中压缩的边(x,y)),以及边(x,y)出现的压缩链集合,
-            // 不是所有的压缩链都一定要出现(x,y),例如频繁度为2,就不可能3条链都出现(x,y)
-            //如何从allArrayListsFromCompress里获得出现(x,y)的所有链是目前的问题
-            list = LonggestList.getLonggest(allArrayListsFromCompress);
+            ArrayList<ArrayList<NodeNumber>> getThisList = new ArrayList<ArrayList<NodeNumber>>();
+            ArrayList<ArrayList<Node>> allArrayNodeFromCompressClone = new ArrayList<ArrayList<Node>>();
+            allArrayNodeFromCompressClone.addAll(allArrayNodeFromCompress);
+
+            //外层循环
+            for (int i = 0; i < allArrayNodeFromCompress.size(); ) {
+                String node = allArrayNodeFromCompress.get(i).get(0).getNodenumber();
+                //内层循环
+                for (int j = 0; j < allArrayNodeFromCompressClone.size(); j++) {
+                    //再循环每个node
+                    for (Node n : allArrayNodeFromCompressClone.get(j)) {
+                        if (n.getNodenumber().equals(node)) {
+                            getThisList.add(allArrayListsFromCompress.get(j));
+                            allArrayNodeFromCompress.remove(allArrayNodeFromCompressClone.get(j));
+                            break;
+                        }
+                    }
+                }
+                list = LonggestList.getLonggest(getThisList);
+                System.out.println("频繁度为" + frequentNum + "的List:" + list.toString());
+                Tools.writeInString(DefaultSetting.outputFileName, "频繁度为" + frequentNum + "压缩链是" + list.toString() + "\n");
+                getThisList.clear();
+            }
             allArrayListsFromCompress.clear();
-            System.out.println("\r频繁度为" + frequentNum + "的频繁子树为: " + list.toString());
-            //Tools.writeInString(DefaultSetting.outputFileName, "阀值为" + frequentNum + "的公共链是" + allLonggestCommonList.toString() + "\n");
+            allArrayNodeFromCompress.clear();
         }
-        System.out.println("\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 ");
+        Tools.writeInString(DefaultSetting.outputFileName, "\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + "毫秒");
+        System.out.println("\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) / 1000 + "秒 ");
     }
 }
