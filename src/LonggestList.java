@@ -27,6 +27,7 @@ public class LonggestList {
                     smallestNodeBranch.remove(i);//删除该brunch(x,y),并且删除以y为父元素的所有元素
                     removeNodeAsFather(smallestNodeBranch, branch);//只可能删除后续没匹配的,所以只要i = i - 1;
                     i = i - 1;
+                    break; //这里面可以跳出么?
                 }
             }
         }
@@ -43,7 +44,12 @@ public class LonggestList {
     public static ArrayList<NodeBranch> getNodeBranchFromNodeNumber(ArrayList<NodeNumber> arrayListNodeNumber) {
         ArrayList<NodeBranch> aNodeBranches = new ArrayList<NodeBranch>();
         for (int j = 1; j < arrayListNodeNumber.size(); j++) {
-            aNodeBranches.add(new NodeBranch(Integer.valueOf(arrayListNodeNumber.get(Math.abs(j - arrayListNodeNumber.get(j).getWeightOfNodes())).getNodenumber()), Integer.valueOf(arrayListNodeNumber.get(j).getNodenumber())));
+            int m = Math.abs(j - arrayListNodeNumber.get(j).getWeightOfNodes());
+            //如果出现压缩链有问题的情况,跳过
+            if (arrayListNodeNumber.size() <= m) {
+                continue;
+            }
+            aNodeBranches.add(new NodeBranch(Integer.valueOf(arrayListNodeNumber.get(m).getNodenumber()), Integer.valueOf(arrayListNodeNumber.get(j).getNodenumber())));
         }
         return aNodeBranches;
     }

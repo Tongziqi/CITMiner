@@ -8,10 +8,12 @@ import java.util.ArrayList;
 public class CompressTree {
 
     //能否记录该轮压缩过程中压缩了的节点
-    public static ArrayList<NodeNumber> compress(Node node, int timesYouDefine, ArrayList<NodeNumber> arrayListsFromCompress) {
+    public static NodeAndList compress(Node node, int timesYouDefine, ArrayList<NodeNumber> arrayListsFromCompress, ArrayList<Node> nodeArrayList) {
         ArrayList<NodeNumber> aNodeNumberArrayList = new ArrayList<NodeNumber>(); //记录被压缩的数据
+        ArrayList<Node> aNodeArrayList = new ArrayList<Node>();// 记录被压缩的边的数据
         //说明开始压缩
         if (node.getTimesOfNodes() == timesYouDefine) {
+            aNodeArrayList.add(node);
             int num = node.getNodeNumberArrayList().size(); //压缩链的个数
             for (Node broNode : getBrotherNodes(node)) {
                 broNode.addWeightOfNodesInNodeNumberArrayList(num);//解决了节点链有兄弟的情况
@@ -30,7 +32,7 @@ public class CompressTree {
         int m, n; //m,n控制变量,比较前后孩子节点个数,是否发生删减的情况
         for (int i = 0; i < tails.size(); ) {
             m = tails.size();//原来的节点数
-            compress(node.getArrayListNodeTail().get(i), timesYouDefine, arrayListsFromCompress);
+            compress(node.getArrayListNodeTail().get(i), timesYouDefine, arrayListsFromCompress, aNodeArrayList);
             n = tails.size();//现在的节点数
             //m和n发生变化就是发生了删减和孩子节点的添加
             //(1) 没发生删减 n-m=0  i=i+1
@@ -46,8 +48,14 @@ public class CompressTree {
             arrayListsFromCompress.clear();
             arrayListsFromCompress.addAll(aNodeNumberArrayList);
         }
+        if (aNodeArrayList.size() != 0) {
+            //nodeBranchArrayList.clear();
+            nodeArrayList.addAll(aNodeArrayList);
+        }
 
-        return arrayListsFromCompress;
+        NodeAndList nodeAndList = new NodeAndList(arrayListsFromCompress, nodeArrayList);
+
+        return nodeAndList;
     }
 
 
