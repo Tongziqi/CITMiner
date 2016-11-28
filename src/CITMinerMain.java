@@ -7,6 +7,7 @@ public class CITMinerMain {
 
     public static void main(String[] args) throws IOException {
 
+        int time = 128;
         ArrayList<Integer> frequentlyList = new ArrayList<Integer>(); //这里记录所有出现的频繁度，只压缩出现的频繁度
         ArrayList<Node> headNode = new ArrayList<Node>();//剪切清理过后得到的头节点
 
@@ -23,8 +24,9 @@ public class CITMinerMain {
         long timeMillis = System.currentTimeMillis();  // 记录系统开始的时间
 
         //算法的步骤,剪切 清理 压缩 序列化
-        Node[] nodes = MakeCompressTree.makeCompressTree(Tools.getNodesListFromText(new File(DefaultSetting.inputFileName)), frequentlyList, DefaultSetting.vauleYouDefine);
-        CuttingTree.getAllTreeFromCutting(nodes, headNode);//剪切
+        //不用先开辟一块内存存放nodes
+        //Node[] nodes = MakeCompressTree.makeCompressTree(Tools.getNodesListFromText(new File(DefaultSetting.inputFileName)), frequentlyList, DefaultSetting.vauleYouDefine);
+        CuttingTree.getAllTreeFromCutting(MakeCompressTree.makeCompressTreeFromArray(Tools.getNodesListFromText(new File(DefaultSetting.inputFileName)).get(time - 1), frequentlyList, DefaultSetting.vauleYouDefine), headNode);//剪切
         CuttingTree.cleanTree(headNode);//清理
         Collections.sort(frequentlyList);
         Collections.reverse(frequentlyList);
@@ -48,6 +50,7 @@ public class CITMinerMain {
 
             //外层循环
             for (int i = 0; i < allArrayNodeFromCompress.size(); ) {
+                //int time = allArrayNodeFromCompress.get(i).get(0).getTime();
                 String node = allArrayNodeFromCompress.get(i).get(0).getNodenumber();
                 //内层循环
                 for (int j = 0; j < allArrayNodeFromCompressClone.size(); j++) {
@@ -61,14 +64,16 @@ public class CITMinerMain {
                     }
                 }
                 list = LonggestList.getLonggest(getThisList);
-                System.out.println("频繁度为" + frequentNum + "的List:" + list.toString());
-                Tools.writeInString(DefaultSetting.outputFileName, "频繁度为" + frequentNum + "压缩链是" + list.toString() + "\n");
+                if (list.size() != 0) {
+                    Tools.writeInString(DefaultSetting.outputFileName, "时间为:" + time + "频繁度为:" + frequentNum + "压缩链是" + list.toString() + "\n");
+                }
+                // System.out.println("频繁度为" + frequentNum + "的List:" + list.toString());
                 getThisList.clear();
             }
             allArrayListsFromCompress.clear();
             allArrayNodeFromCompress.clear();
         }
         Tools.writeInString(DefaultSetting.outputFileName, "\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + "毫秒");
-        System.out.println("\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) / 1000 + "秒 ");
+        System.out.println("\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 ");
     }
 }
