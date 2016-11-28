@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 
 /**
  * Created by tongxiaotuo on 16/9/1.
@@ -44,6 +45,15 @@ public class Tools {
         }
     }
 
+    public static int[] sizeTable = {9, 99, 999, 9999, 99999, 999999, 9999999,
+            99999999, 999999999, Integer.MAX_VALUE};
+
+    public static int sizeOfInt(int x) {
+        for (int i = 0; ; i++)
+            if (x <= sizeTable[i])
+                return i + 1;
+    }
+
     /**
      * 把文件里面的数字组成一个二维Node链表
      * Node包含它的头结点和它的一堆尾节点
@@ -51,23 +61,24 @@ public class Tools {
      * @param filePath 表示从文件里面读取的数值
      * @return 一个带头结点和尾节点的二维Node链表
      */
-    public static Node[][] getNodesListFromText(File filePath) throws IOException {
+    public static ArrayList<ArrayList<Node[]>> getNodesListFromText(File filePath) throws IOException {
         String nodesFronText = readInString(filePath);
         Node firstNodeHeadNode = new Node("-2"); //默认第一个结点的头结点为-2
         Node defaultHeadNode = new Node("-3");  //默认头结点为-3
 
         String lineNumbersOfArray[] = nodesFronText.split("\n");
         int arrayListnumbers = lineNumbersOfArray.length;
-
+        int time;
         Node nodesList[][] = new Node[arrayListnumbers][];  //控制行数
-
         for (int i = 0; i < arrayListnumbers; i++) {
+            String numbersListForTime[] = lineNumbersOfArray[i].split(" |\r");
+            time = Integer.parseInt(numbersListForTime[0]);//需要删除第一个数
+            lineNumbersOfArray[i] = lineNumbersOfArray[i].substring(sizeOfInt(time) + 1);//删除后添加的时间和空格
 
             String numbersList[] = lineNumbersOfArray[i].split(" |\r");  //一行有几个数
             nodesList[i] = new Node[numbersList.length - 3]; //每行去掉前三个数
-
             for (int j = 0; j < numbersList.length - 3; j++) {
-                nodesList[i][j] = new Node(String.valueOf(numbersList[j + 3]));  //每一个Node不仅仅是一个数值而是一个对象
+                nodesList[i][j] = new Node(String.valueOf(numbersList[j + 3]), time);  //每一个Node不仅仅是一个数值而是一个对象
                 nodesList[i][j].setNodeHead(defaultHeadNode);
                 //合并功能
                 if (j != nodesList[i].length - 1) {
@@ -93,9 +104,9 @@ public class Tools {
                                 //这个循环是为了循环找getNodeHead
                                 for (int num = 1; num < numberOfLayer; num++) {
                                     node = node.getNodeHead();
-                                    nodesList[i][j + num] = new Node(String.valueOf(numbersList[j + 3 + num])); //这里新建跳过的-1节点
+                                    nodesList[i][j + num] = new Node(String.valueOf(numbersList[j + 3 + num]), time); //这里新建跳过的-1节点
                                 }
-                                nodesList[i][j + numberOfLayer] = new Node(String.valueOf(numbersList[j + 3 + numberOfLayer]));
+                                nodesList[i][j + numberOfLayer] = new Node(String.valueOf(numbersList[j + 3 + numberOfLayer]), time);
                                 nodesList[i][j + numberOfLayer].setNodeHead(node);
                                 node.addNodeTail(nodesList[i][j + numberOfLayer]);
                                 j += numberOfLayer;
@@ -105,8 +116,25 @@ public class Tools {
                 }
             }
         }
-        return nodesList;
+        ArrayList<ArrayList<Node[]>> nodesListWithtime = new ArrayList<ArrayList<Node[]>>();
+        ArrayList<Node[]> test = new ArrayList<Node[]>();
+        int j = 0;
+        int size = nodesList[nodesList.length - 1][0].getTime();
+        for (int i = 0; i < size; i++) {
+            for (; j < nodesList.length; j++) {
+                if (nodesList[j][0].getTime() == i + 1) {
+                    test.add(nodesList[j]);
+                } else {
+                    nodesListWithtime.add((ArrayList<Node[]>) test.clone());
+                    test.clear();
+                    break;
+                }
+            }
+        }
+        nodesListWithtime.add(test);
+        return nodesListWithtime;
     }
+
 
     /**
      * 读取node头节点信息

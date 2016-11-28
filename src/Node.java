@@ -6,15 +6,30 @@ import java.util.ArrayList;
  */
 public class Node {
     public ArrayList<NodeNumber> nodeNumberArrayList;
-    public Node nodeHead;   //节点的头结点
+    public Node nodeHead;    //节点的头结点
     public String nodenumber;  //节点的数值
     public int timesOfNodes; //出现的次数
     public int weightOfNodes; //节点的权重
     public ArrayList<Node> arrayListNodeTail = new ArrayList<Node>(); //孩子们
+    public int time;//新添加的时间节点
+
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
+    }
 
     public Node(String nodenumber) {
 
         this.nodenumber = nodenumber;
+        nodeNumberArrayList = new ArrayList<NodeNumber>();
+    }
+
+    public Node(String nodenumber, int time) {
+        this.nodenumber = nodenumber;
+        this.time = time;
         nodeNumberArrayList = new ArrayList<NodeNumber>();
     }
 
