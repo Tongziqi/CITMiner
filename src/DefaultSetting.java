@@ -4,6 +4,8 @@
  */
 public class DefaultSetting {
     public static int vauleYouDefine = 2;
+    public static int startTime = 1;
+    public static int endTime = 120;
     public static String outputFileName = "/Users/tongxiaotuo/Desktop/Citdata/输出的结果.txt";
     public static String inputFileName = "/Users/tongxiaotuo/Desktop/Citdata/test.txt";
 
