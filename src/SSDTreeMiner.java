@@ -1,5 +1,6 @@
 /**
  * Created by tongxiaotuo on 2016/11/29.
+ * 获得半结构化数据流中的频繁模式
  */
 public class SSDTreeMiner {
     public static void getStream() {

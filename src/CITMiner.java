@@ -1,13 +1,15 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
 /**
  * Created by tongxiaotuo on 2016/11/29.
  * 获得静态压缩数据
  */
 public class CITMiner {
-    public static void getStaticTree(ArrayList<ArrayList<Node[]>> allNodesWithTime) {
+    public static HashMap<Integer, ArrayList<FrequenceTree>> getStaticTree(ArrayList<ArrayList<Node[]>> allNodesWithTime) {
         long timeMillis = System.currentTimeMillis();  // 记录系统开始的时间
+        HashMap<Integer, ArrayList<FrequenceTree>> results = new HashMap<Integer, ArrayList<FrequenceTree>>();
 
         //算法的步骤,剪切 清理 压缩 序列化
         for (int time = DefaultSetting.startTime; time < DefaultSetting.endTime; time++) {
@@ -21,6 +23,9 @@ public class CITMiner {
             ArrayList<ArrayList<NodeNumber>> allArrayListsFromCompress = new ArrayList<ArrayList<NodeNumber>>();
             ArrayList<ArrayList<Node>> allArrayNodeFromCompress = new ArrayList<ArrayList<Node>>();
             ArrayList<NodeBranch> longestList; //存储着最长公共链
+
+            // 记录数据用
+            ArrayList<FrequenceTree> frequenceTreeArrayList = new ArrayList<FrequenceTree>();//记录所有的静态挖掘结果
 
             ArrayList<Node[]> nodes = allNodesWithTime.get(time - 1);
             CuttingTree.getAllTreeFromCutting(MakeCompressTree.makeCompressTreeFromArray(nodes, frequentlyList, DefaultSetting.vauleYouDefine), headNode);//剪切
@@ -62,16 +67,19 @@ public class CITMiner {
                     }
                     longestList = LonggestList.getLonggest(getThisList);
                     if (longestList.size() != 0) {
-                        Tools.writeInString(DefaultSetting.outputFileName, "时间为:" + time + "频繁度为:" + frequentNum + "压缩链是" + longestList.toString() + "\n");
+                        //不写入文件保存
+                        //Tools.writeInString(DefaultSetting.outputFileName, "时间为:" + time + "频繁度为:" + frequentNum + "压缩链是" + longestList.toString() + "\n");
+                        frequenceTreeArrayList.add(new FrequenceTree(frequentNum, longestList));
                     }
                     getThisList.clear();
                 }
+                results.put(time, frequenceTreeArrayList);
                 allArrayListsFromCompress.clear();
                 allArrayNodeFromCompress.clear();
             }
-
         }
-        Tools.writeInString(DefaultSetting.outputFileName, "\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + "毫秒");
+        // Tools.writeInString(DefaultSetting.outputFileName, "\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + "毫秒");
         System.out.println("\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 ");
+        return results;
     }
 }
