@@ -8,9 +8,7 @@ import java.util.HashMap;
  */
 public class CITMiner {
     public static HashMap<Integer, ArrayList<FrequenceTree>> getStaticTree(ArrayList<ArrayList<Node[]>> allNodesWithTime) {
-        long timeMillis = System.currentTimeMillis();  // 记录系统开始的时间
         HashMap<Integer, ArrayList<FrequenceTree>> results = new HashMap<Integer, ArrayList<FrequenceTree>>();
-
         //算法的步骤,剪切 清理 压缩 序列化
         for (int time = DefaultSetting.startTime; time < DefaultSetting.endTime; time++) {
             ArrayList<Integer> frequentlyList = new ArrayList<Integer>(); //这里记录所有出现的频繁度，只压缩出现的频繁度 每个时间节点不一样
@@ -78,8 +76,6 @@ public class CITMiner {
                 allArrayNodeFromCompress.clear();
             }
         }
-        // Tools.writeInString(DefaultSetting.outputFileName, "\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + "毫秒");
-        System.out.println("\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 ");
         return results;
     }
 }
