@@ -1,14 +1,13 @@
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class CITMinerMain {
-
-    public static void main(String[] args) throws IOException {
+/**
+ * Created by tongxiaotuo on 2016/11/29.
+ * 获得静态压缩数据
+ */
+public class CITMiner {
+    public static void getStaticTree(ArrayList<ArrayList<Node[]>> allNodesWithTime) {
         long timeMillis = System.currentTimeMillis();  // 记录系统开始的时间
-        //得到所有的时间节点
-        ArrayList<ArrayList<Node[]>> allNodesWithTime = Tools.getNodesListFromText(new File(DefaultSetting.inputFileName));
 
         //算法的步骤,剪切 清理 压缩 序列化
         for (int time = DefaultSetting.startTime; time < DefaultSetting.endTime; time++) {
@@ -72,7 +71,6 @@ public class CITMinerMain {
             }
 
         }
-
         Tools.writeInString(DefaultSetting.outputFileName, "\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + "毫秒");
         System.out.println("\r执行耗时 : " + (System.currentTimeMillis() - timeMillis) + " 毫秒 ");
     }
